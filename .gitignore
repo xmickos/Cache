@@ -1,0 +1,5 @@
+.DS_Store
+.vscode/
+*.o
+if_list.cpp
+2q_cache.hpp
