@@ -2,6 +2,7 @@
 #include<list>
 #include<unordered_map>
 #include<cstdlib>
+#include<gtest/gtest.h>
 
 namespace caches {
 
@@ -27,13 +28,6 @@ struct lru_cache {
         // если в кэше есть указанный элемент, переместить его на первое место
 
         if(htable_.find(value) == htable_.end()){
-
-            // for(auto it = lst_.begin(); it != lst_.end(); it++) { std::cout << *it << " "; }
-            // std::cout << std::endl;
-
-            // std::cout << "Erased.\n";
-            // std::cout << lst_.back() << std::endl;
-
             lst_.push_front(value);
             htable_.insert({value, lst_.begin()});
         }else{
@@ -59,27 +53,17 @@ template <typename T>
 struct fifo {
     int capacity_;
     std::list<T> lst_;
-    std::unordered_map<int,  typename std::list<T>::iterator> htable_; // <int, std::list::iterator>
+    std::unordered_map<int,  typename std::list<T>::iterator> htable_;
 
 
-    fifo(int capacity = DEFAULT_A_IN_SZ) : lst_(), htable_(), capacity_(capacity) {
-
-        std::cout << "Initialized fifo with capacity_ == " << capacity_ << std::endl;
-
-        // в конструкторе это можно и не подвязывать, тк всё равно пока у конкретного элемента хэш-таблицы нет привязки к
-        // своему листу, в этом элементе хэш-таблицы должен стоять ноль (а точнее nullptr).
-
-    }
+    fifo(int capacity = DEFAULT_A_IN_SZ) : lst_(), htable_(), capacity_(capacity) { }
 
     bool is_full() const {
-        // std::cout << "In is_full capacity_ is " << capacity_ << ", htable_.size() is " << htable_.size() << std::endl;
         return htable_.size() == capacity_;
     }
 
     bool is_empty() const {
         // верификатор
-        assert(lst_.empty() && htable_.empty());
-        assert(!htable_.empty() && !lst_.empty());
 
         return(lst_.empty() && htable_.empty());
     }
@@ -88,25 +72,10 @@ struct fifo {
         // верификатор
 
         return htable_.find(value) != htable_.end();
-
-        // если значения нет, нам вернут lst_.end(), иначе - итератор на элемент списка.
-        // а нужна ли эта функция вовсе ?.. пусть останется пока что.
-
     }
 
     void insert_elem(T value) {
         // верификатор
-        //
-        // Но "очередь полна" æ - это сколько ? Нужно
-        // понятие capacity. Но если переменная sz_ всегда задаётся lst_.size() == htable_.size() (при соблюдении
-        // валидности структуры), нужна ли отдельная переменная sz_, если можно оставить только capacity_ и убрать
-        // возможно resize'a вовсе. На самом деле, её быть и не может, тк кэш в любом случае должен быть конечен - иначе
-        // зачем он нужен.
-        // std::cout << "yes, we are here." << std::endl;
-
-        // std::cout << htable_.size() << " " << lst_.size() <<std::endl;
-
-        // если очередь полна, удали последний элемент и вставь новый в начало.
         if(is_full()){
             htable_.erase(lst_.back());
             lst_.pop_back();
@@ -114,8 +83,6 @@ struct fifo {
 
         lst_.push_front(value);
         htable_.insert({value, lst_.begin()});
-
-        // std::cout << "After insert_elem htable_.size() is " << htable_.size() << std::endl;
     }
 
     void erase_elem(T value) {
@@ -136,9 +103,7 @@ struct two_queues {
     fifo<T> Ain1, Ain2;
 
     two_queues(int lrg_sz = DEFAULT_MAIN_SZ, int smll_sz = DEFAULT_A_IN_SZ) : Am(lrg_sz_), Ain1(smll_sz_), Ain2(lrg_sz_),
-        lrg_sz_(lrg_sz), smll_sz_(smll_sz) {
-        std::cout << "Initialized 2Q with lrg_sz == " << lrg_sz_ << ", smll_sz_ == " << smll_sz_ << std::endl;
-    }
+        lrg_sz_(lrg_sz), smll_sz_(smll_sz) { }
 
     bool elem_hit(T value) const {
         return Am.find_elem(value) || Ain1.find_elem(value);
@@ -149,8 +114,6 @@ struct two_queues {
     }
 
     void drag_between_fifos() {
-        // std::cout << "[drag_between_fifos]\n";
-
         T val = Ain1.lst_.back();
         Ain2.insert_elem(val);
         Ain1.erase_elem(val);
@@ -159,11 +122,9 @@ struct two_queues {
     void update_fifos(T value) {
 
         if(Ain1.is_full()){
-            // std::cout << "Ain1 is full\n";
             drag_between_fifos();
             Ain1.insert_elem(value);
         }else{
-            // std::cout << "Ain1 is not full!\n";
             Ain1.insert_elem(value);
         }
 
@@ -171,9 +132,7 @@ struct two_queues {
 
     void drag_into_lru(T value) {
         T val = *(Ain2.htable_.at(value));
-        // std::cout << "Inserting in Am.\n";
         Am.insert_elem(val);
-        // std::cout << "Erasing from Ain2.\n";
         Ain2.erase_elem(val);
     }
 
@@ -181,19 +140,14 @@ struct two_queues {
         bool result = elem_hit(value);
 
         if(Am.find_elem(value)){
-            // std::cout << "So, we are here! Am!" << std::endl;
             Am.lru_update(value);
         }else{
             if(Ain2.find_elem(value)){
-                // std::cout << "So, we are here! Lru!" << std::endl;
                 drag_into_lru(value);
             }else{
-                // std::cout << "So, we are here! Fifos!" << std::endl;
                 update_fifos(value);
             }
         }
-
-        // std::cout << std::endl;
 
         return result;
     }

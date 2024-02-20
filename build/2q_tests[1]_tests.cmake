@@ -1,0 +1,6 @@
+add_test([=[Two_queues.BasicAssertions]=]  /Users/xmickos/Desktop/govno.jopa.kosmos/Programming/Vladimirov/2Q_Cache/build/2q_tests [==[--gtest_filter=Two_queues.DISABLED_BasicAssertions]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[Two_queues.BasicAssertions]=]  PROPERTIES DISABLED TRUE)
+set_tests_properties([=[Two_queues.BasicAssertions]=]  PROPERTIES WORKING_DIRECTORY /Users/xmickos/Desktop/govno.jopa.kosmos/Programming/Vladimirov/2Q_Cache/build SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+add_test([=[Two_queues.Fifo_isolated]=]  /Users/xmickos/Desktop/govno.jopa.kosmos/Programming/Vladimirov/2Q_Cache/build/2q_tests [==[--gtest_filter=Two_queues.Fifo_isolated]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[Two_queues.Fifo_isolated]=]  PROPERTIES WORKING_DIRECTORY /Users/xmickos/Desktop/govno.jopa.kosmos/Programming/Vladimirov/2Q_Cache/build SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+set(  2q_tests_TESTS Two_queues.BasicAssertions Two_queues.Fifo_isolated)

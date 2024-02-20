@@ -1,0 +1,5 @@
+if(EXISTS "/Users/xmickos/Desktop/govno.jopa.kosmos/Programming/Vladimirov/2Q_Cache/build/cache_me_if_you_can[1]_tests.cmake")
+  include("/Users/xmickos/Desktop/govno.jopa.kosmos/Programming/Vladimirov/2Q_Cache/build/cache_me_if_you_can[1]_tests.cmake")
+else()
+  add_test(cache_me_if_you_can_NOT_BUILT cache_me_if_you_can_NOT_BUILT)
+endif()

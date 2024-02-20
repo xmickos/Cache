@@ -1,0 +1,55 @@
+Start testing: Feb 20 15:26 MSK
+----------------------------------------------------------
+1/2 Testing: Two_queues.BasicAssertions
+1/2 Test: Two_queues.BasicAssertions
+Command: ""
+Directory: /Users/xmickos/Desktop/govno.jopa.kosmos/Programming/Vladimirov/2Q_Cache/build
+"Two_queues.BasicAssertions" start time: 
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"Two_queues.BasicAssertions" end time: Feb 20 15:26 MSK
+"Two_queues.BasicAssertions" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/2 Testing: Two_queues.Fifo_isolated
+2/2 Test: Two_queues.Fifo_isolated
+Command: "/Users/xmickos/Desktop/govno.jopa.kosmos/Programming/Vladimirov/2Q_Cache/build/2q_tests" "--gtest_filter=Two_queues.Fifo_isolated" "--gtest_also_run_disabled_tests"
+Directory: /Users/xmickos/Desktop/govno.jopa.kosmos/Programming/Vladimirov/2Q_Cache/build
+"Two_queues.Fifo_isolated" start time: Feb 20 15:26 MSK
+Output:
+----------------------------------------------------------
+Running main() from /Users/xmickos/Desktop/govno.jopa.kosmos/Programming/Vladimirov/2Q_Cache/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = Two_queues.Fifo_isolated
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Two_queues
+[ RUN      ] Two_queues.Fifo_isolated
+//////Sizes: 8 9
+/Users/xmickos/Desktop/govno.jopa.kosmos/Programming/Vladimirov/2Q_Cache/2q_tests.cc:80: Failure
+Expected equality of these values:
+  htable.size()
+    Which is: 8
+  9
+[  FAILED  ] Two_queues.Fifo_isolated (0 ms)
+[----------] 1 test from Two_queues (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Two_queues.Fifo_isolated
+
+ 1 FAILED TEST
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Failed.
+"Two_queues.Fifo_isolated" end time: Feb 20 15:26 MSK
+"Two_queues.Fifo_isolated" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Feb 20 15:26 MSK
