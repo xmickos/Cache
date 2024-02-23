@@ -9,6 +9,7 @@ namespace caches {
 #define DEFAULT_MAIN_SZ 256
 #define DEFAULT_A_IN_SZ 64
 
+
 template <typename T>
 struct lru_cache {
     int capacity_;
@@ -53,13 +54,13 @@ template <typename T>
 struct fifo {
     int capacity_;
     std::list<T> lst_;
-    std::unordered_map<int,  typename std::list<T>::iterator> htable_;
-
+    std::unordered_map<int, typename std::list<typename std::list<T>::iterator>*> htable_;
+    // std::unordered_multimap<int, std::list<T>::iterator> htable_;
 
     fifo(int capacity = DEFAULT_A_IN_SZ) : lst_(), htable_(), capacity_(capacity) { }
 
     bool is_full() const {
-        return htable_.size() == capacity_;
+        return lst_.size() == capacity_;
     }
 
     bool is_empty() const {
@@ -82,14 +83,52 @@ struct fifo {
         }
 
         lst_.push_front(value);
-        htable_.insert({value, lst_.begin()});
+
+        std::cout << "insert_elem(" << value << "), find_elem(" << value << ") = " << find_elem(value) << std::endl;
+
+        if(find_elem(value)){
+            // auto iter_list = htable_.at(value);
+            // auto iter_last = iter_list.back();
+            // lst_.erase(iter_last);
+            // iter_list.pop_back();
+
+
+            auto iter_lst = htable_.at(value);
+            iter_lst->push_back(lst_.begin());
+        }else{
+            std::list<typename std::list<T>::iterator> *iter_lst = new std::list<typename std::list<T>::iterator>;
+            iter_lst->push_back(lst_.begin());
+            htable_.insert({value, iter_lst});
+        }
     }
 
     void erase_elem(T value) {
-        if(htable_.find(value) != htable_.end()){
-            auto it = htable_.at(value);
+        if(find_elem(value)){
+            // std::list<typename std::list<T>::iterator> iter_list = htable_.at(value);
+            // htable_.erase(value);
+            // for(auto iter = iter_list.begin(), et = iter_list.end(); iter != et; iter++){
+            //     lst_.erase(*iter);
+            // }
+            // // delete iter_list;
+
+
+
+            // auto it = iter_list->end();
+            // it -= 1;
+            // for(; it != iter_list->begin(); ++it){
+            //     lst_.erase(*it);
+            //     ++it;
+            // }while()
+            // // iter_list.~list();
+
+            std::list<typename std::list<T>::iterator> *iter_list = htable_.at(value);
+            while(!iter_list->empty()){
+                lst_.erase(iter_list->back());
+                iter_list->pop_back();
+            }
             htable_.erase(value);
-            lst_.erase(it);
+            delete iter_list;
+
         }
     }
 
@@ -131,7 +170,7 @@ struct two_queues {
     }
 
     void drag_into_lru(T value) {
-        T val = *(Ain2.htable_.at(value));
+        T val = *((Ain2.htable_.at(value))->back());
         Am.insert_elem(val);
         Ain2.erase_elem(val);
     }
