@@ -54,8 +54,8 @@ template <typename T>
 struct fifo {
     int capacity_;
     std::list<T> lst_;
-    std::unordered_map<int, typename std::list<typename std::list<T>::iterator>*> htable_;
-    // std::unordered_multimap<int, std::list<T>::iterator> htable_;
+    // std::unordered_map<int, typename std::list<typename std::list<T>::iterator>*> htable_;
+    std::unordered_multimap<int, typename std::list<T>::iterator> htable_;
 
     fifo(int capacity = DEFAULT_A_IN_SZ) : lst_(), htable_(), capacity_(capacity) { }
 
@@ -64,74 +64,49 @@ struct fifo {
     }
 
     bool is_empty() const {
-        // верификатор
-
         return(lst_.empty() && htable_.empty());
     }
 
     bool find_elem(T value) const {
-        // верификатор
-
-        return htable_.find(value) != htable_.end();
+        return htable_.count(value) != 0;
     }
 
     void insert_elem(T value) {
-        // верификатор
         if(is_full()){
-            htable_.erase(lst_.back());
+            std::cout << "Deleting " << lst_.back() << " in count of " << htable_.count(lst_.back()) << ", find was "
+                << find_elem(lst_.back());
+
+            auto it_rng = htable_.equal_range(lst_.back());
+
+            htable_.erase(it_rng.first);
             lst_.pop_back();
+
+            std::cout << ", new size is " << htable_.size() << std::endl;
         }
 
         lst_.push_front(value);
 
-        std::cout << "insert_elem(" << value << "), find_elem(" << value << ") = " << find_elem(value) << std::endl;
+        std::cout << "insert_elem(" << value << "), find_elem(" << value << ") = " << find_elem(value) <<
+            " (before inserting)";
 
-        if(find_elem(value)){
-            // auto iter_list = htable_.at(value);
-            // auto iter_last = iter_list.back();
-            // lst_.erase(iter_last);
-            // iter_list.pop_back();
+        htable_.insert({value, lst_.begin()});
 
-
-            auto iter_lst = htable_.at(value);
-            iter_lst->push_back(lst_.begin());
-        }else{
-            std::list<typename std::list<T>::iterator> *iter_lst = new std::list<typename std::list<T>::iterator>;
-            iter_lst->push_back(lst_.begin());
-            htable_.insert({value, iter_lst});
-        }
+        std::cout << ", size = " << htable_.size() << ", find(" << value << ") = " << find_elem(value)
+            << "- after. Now is_full is " << is_full() << std::endl;
     }
 
     void erase_elem(T value) {
         if(find_elem(value)){
-            // std::list<typename std::list<T>::iterator> iter_list = htable_.at(value);
-            // htable_.erase(value);
-            // for(auto iter = iter_list.begin(), et = iter_list.end(); iter != et; iter++){
-            //     lst_.erase(*iter);
-            // }
-            // // delete iter_list;
-
-
-
-            // auto it = iter_list->end();
-            // it -= 1;
-            // for(; it != iter_list->begin(); ++it){
-            //     lst_.erase(*it);
-            //     ++it;
-            // }while()
-            // // iter_list.~list();
-
-            std::list<typename std::list<T>::iterator> *iter_list = htable_.at(value);
-            while(!iter_list->empty()){
-                lst_.erase(iter_list->back());
-                iter_list->pop_back();
+            std::cout << "finded elem " << value << " for erasing, trying to erase: ";
+            auto range = htable_.equal_range(value);
+            if(range.first == htable_.end()){ std::cout << "zero range!"; }
+            for(auto it = range.first; it != range.second; ++it){
+                std::cout << it->first << " == " << *(it->second);
+                lst_.erase(it->second);
             }
             htable_.erase(value);
-            delete iter_list;
-
         }
     }
-
 };
 
 
@@ -170,7 +145,8 @@ struct two_queues {
     }
 
     void drag_into_lru(T value) {
-        T val = *((Ain2.htable_.at(value))->back());
+        // T val = *((Ain2.htable_.at(value))->back());
+        T val = *(Ain2.htable_.equal_range(value).first->second);
         Am.insert_elem(val);
         Ain2.erase_elem(val);
     }

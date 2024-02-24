@@ -3,7 +3,7 @@
 
 #define TEST_SIZE 100
 
-TEST(Two_queues, DISABLED_BasicAssertions){
+TEST(Two_queues, BasicAssertions){
 
     caches::two_queues<int> my_2q(75, 25);
 
@@ -40,7 +40,6 @@ TEST(Two_queues, Fifo_isolated){
 
     caches::fifo<int> test_fifo(test_capacity);
     std::list<int> &lst = test_fifo.lst_;
-    // std::unordered_map<int, std::list<int>::iterator> &htable = test_fifo.htable_;
 
     //basic funcs assertions
     ASSERT_EQ(test_fifo.capacity_, test_capacity);
@@ -69,8 +68,8 @@ TEST(Two_queues, Fifo_isolated){
     ASSERT_FALSE(test_fifo.is_full());
     ASSERT_EQ(test_fifo.htable_.size(), 1);
     ASSERT_EQ(lst.size(), 1);
-    ASSERT_EQ(*((test_fifo.htable_.at(inputs[0]))->begin()), lst.begin());
     ASSERT_EQ(*(lst.begin()), inputs[0]);
+    ASSERT_EQ(*(test_fifo.htable_.find(inputs[0])->second), inputs[0]);
 
     for(int i = 1; i < 9; i++){
         test_fifo.insert_elem(inputs[i]);  // added 9 / 25 elems
@@ -79,27 +78,16 @@ TEST(Two_queues, Fifo_isolated){
 
     for(int i = 1; i < 9; i++){
         ASSERT_TRUE(test_fifo.find_elem(inputs[i]));
-        ASSERT_EQ(*(*(test_fifo.htable_.at(inputs[i])->begin())), inputs[i]);
+        ASSERT_EQ(*(test_fifo.htable_.equal_range(inputs[i]).first->second), inputs[i]);
     }
 
     ASSERT_FALSE(test_fifo.is_empty());
     ASSERT_FALSE(test_fifo.is_full());
 
-    std::cout << "//////Sizes: \n" << test_fifo.htable_.size() << " " << lst.size() << std::endl << "//////Contents: htable vs lst\n";
-
-
-
-    for(auto it_htable = test_fifo.htable_.begin(); it_htable != test_fifo.htable_.end(); it_htable++){
-        auto it_lst = it_htable->second;
-        for(auto it_lst_lst = it_lst->begin(); it_lst_lst != it_lst->end(); ++it_lst_lst){
-            std::cout << it_htable->first << " " << **it_lst_lst << std::endl;
-            ASSERT_EQ(it_htable->first, **it_lst_lst);
-        }
-    }
-
+    std::cout << "//////Sizes: \n" << test_fifo.htable_.size() << " " << lst.size() << std::endl;
     std::cout << std::endl;
 
-    ASSERT_LT(test_fifo.htable_.size(), lst.size());
+    ASSERT_LE(test_fifo.htable_.size(), lst.size());
     ASSERT_EQ(lst.size(), 9);
 
 
@@ -107,53 +95,27 @@ TEST(Two_queues, Fifo_isolated){
         test_fifo.insert_elem(inputs[i]);  // added 25 / 25 elems
     }
 
+    std::cout << "//////Sizes: \n" << test_fifo.htable_.size() << " " << lst.size() << std::endl;
+
+
     for(int i = 0; i < test_size; ++i){
-        std::cout << "For " << inputs[i] << " -> " << test_fifo.find_elem(inputs[i]) << std::endl;
+        std::cout << "For " << inputs[i] << " -> " << test_fifo.find_elem(inputs[i]);
+        if(test_fifo.find_elem(inputs[i])){
+            std::cout << " -> " <<  *(test_fifo.htable_.find(inputs[i])->second) << std::endl;
+        }else{
+            std::cout << std::endl;
+        }
     }
 
     std::cout << "lst size = " << lst.size() << ", htable size = " << test_fifo.htable_.size() << std::endl <<
     "Now htable contains:" << std::endl;
 
-    for(auto it_htable = test_fifo.htable_.begin(); it_htable != test_fifo.htable_.end(); it_htable++){
-        auto it_lst = it_htable->second;
-        for(auto it_lst_lst = it_lst->begin(); it_lst_lst != it_lst->end(); ++it_lst_lst){
-            std::cout << it_htable->first << " " << **it_lst_lst << " in the amout of " << it_lst->size() <<std::endl;
-            ASSERT_EQ(it_htable->first, **it_lst_lst);
-        }
-    }
-
-
     ASSERT_TRUE(test_fifo.is_full());
-//
-//     test_fifo.erase_elem(inputs[0]);
-//     test_fifo.erase_elem(inputs[1]);
-//     test_fifo.erase_elem(inputs[2]);
-//     test_fifo.erase_elem(inputs[3]);
-//     test_fifo.erase_elem(inputs[4]);
-//     test_fifo.erase_elem(inputs[5]);
-//     test_fifo.erase_elem(inputs[6]);
-//     test_fifo.erase_elem(inputs[7]);
-//     test_fifo.erase_elem(inputs[8]);
-//     test_fifo.erase_elem(inputs[9]);
-//     test_fifo.erase_elem(inputs[10]);
-//     test_fifo.erase_elem(inputs[11]);
-//     test_fifo.erase_elem(inputs[12]);
-//     test_fifo.erase_elem(inputs[13]);
-//     test_fifo.erase_elem(inputs[14]);
-//     test_fifo.erase_elem(inputs[15]);
-//     test_fifo.erase_elem(inputs[16]);
-//     test_fifo.erase_elem(inputs[17]);
-//     test_fifo.erase_elem(inputs[18]);
-//     test_fifo.erase_elem(inputs[19]);
-//     test_fifo.erase_elem(inputs[20]);
-//     test_fifo.erase_elem(inputs[21]);
-//     test_fifo.erase_elem(inputs[22]);
-//     test_fifo.erase_elem(inputs[23]);
-//     test_fifo.erase_elem(inputs[24]);
-//     test_fifo.erase_elem(inputs[25]);
+
+
 
     for(int i = 0; i < test_size; i++){
-        std::cout << "Erasing elem " << inputs[i] << ", before we had: " << test_fifo.find_elem(inputs[i]);
+        std::cout << "Erasing elem " << inputs[i] << ", before we had: " << test_fifo.find_elem(inputs[i]) << " ";
         test_fifo.erase_elem(inputs[i]);
         std::cout << ", now he got: " << test_fifo.find_elem(inputs[i]) << std::endl;
     }
@@ -171,22 +133,65 @@ TEST(Two_queues, Fifo_isolated){
     }
 
 
-//     for(auto it = lst.begin(), et = lst.end(); it != et; it++){
-//         std::cout << *it << " ";
-//     }
-//     std::cout << std::endl;
+    for(auto it = lst.begin(), et = lst.end(); it != et; it++){
+        std::cout << *it << " ";
+    }
+    std::cout << std::endl;
 
-//     ASSERT_TRUE(test_fifo.is_empty());
-//
-//
-//
-//     delete [] inputs;
+    ASSERT_TRUE(test_fifo.is_empty());
 
-//     caches::fifo<int> test_fifa(25);
-//
-//     for(int i = 0; i < 8; i++){
-//         test_fifa.insert_elem(1);
-//     }
-//
-//     std::cout << "lst size = " << test_fifa.lst_.size() << ", htable size = " << test_fifa.htable_.size() << std::endl;
+
+
+    delete [] inputs;
+}
+
+TEST(Two_queues, DISABLED_unordered_multimap){
+
+    size_t test_size = 75, test_capacity = 25;
+
+    // caches::fifo<int> test_fifo(test_capacity);
+    // std::list<int> &lst = test_fifo.lst_;
+    std::unordered_multimap<int, char> htable_;
+
+
+    htable_.insert({1, 'a'});
+    htable_.insert({1, 'b'});
+    htable_.insert({1, 'c'});
+    htable_.insert({1, 'd'});
+    htable_.insert({2, 'e'});
+    htable_.insert({2, 'f'});
+    htable_.insert({2, 'g'});
+    htable_.insert({2, 'h'});
+
+
+    std::cout << "////////////////////\n\n";
+
+
+    // std::cout << std::endl;
+    // for(auto it = htable_.cbegin(); it != htable_.cend(); it++){
+    //     std::cout << it->first << " " << it->second << std::endl;
+    // }
+
+    auto rng = htable_.equal_range(1);
+    std::cout << "it = " << rng.first->second << ", size = " << htable_.size() << std::endl;
+
+    htable_.erase(std::next(rng.first, htable_.bucket_size(1) - 1));
+
+    std::cout << "Size = " << htable_.size() << std::endl;
+
+    std::cout << std::endl;
+    for(auto it = htable_.cbegin(); it != htable_.cend(); it++){
+        std::cout << it->first << " " << it->second << std::endl;
+    }
+
+    std::cout << "////////////////////\n\n";
+}
+
+TEST(Two_queue, DISABLED_multimap){
+    std::unordered_multimap<int,char> map = {{1, 'a'},{1, 'b'},{1, 'd'},{2, 'b'}};
+
+    auto range = map.equal_range(1);
+
+    for (auto it = range.first; it != range.second; ++it)
+        std::cout << it->first << ' ' << it->second << '\n';
 }
