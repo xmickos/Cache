@@ -45,15 +45,11 @@ struct lru_cache {
             std::cout << "Elem " << value << " finded ! " << std::endl;
             auto it = htable_.at(value);
 
-            if(is_full()){
-                std::list<T> & lst_ref = lst_;
-                lst_.splice(lst_.begin(), lst_ref, it);
-            }else{
-                T tmp = *it;
-                lst_.erase(it);
-                lst_.push_front(tmp);
-                htable_.insert({tmp, lst_.begin()});
-            }
+            T tmp = *it;
+            lst_.erase(it);
+            lst_.push_front(tmp);
+            htable_.erase(tmp);
+            htable_.insert({tmp, lst_.begin()});
         }
     }
 

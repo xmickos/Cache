@@ -2,11 +2,11 @@
 #include <gtest/gtest.h>
 #include <random>
 
-#define TEST_SIZE 100
+#define TEST_SIZE 10000
 
 TEST(Two_queues, Main_test){
 
-    caches::two_queues<int> test_qs(3, 2);
+    caches::two_queues<int> test_qs(75, 25);
 
 //     int *input = new int[TEST_SIZE];
 //     bool *results = new bool[TEST_SIZE];
@@ -37,6 +37,13 @@ TEST(Two_queues, Main_test){
     for(int i = 0; i < TEST_SIZE; ++i){
         bdistr_input[i] = distribution(generator);
     }
+
+    std::cout << "/////////////////// Input ///////////////////" << std::endl;
+    for(int i = 0; i < TEST_SIZE; ++i){
+        std::cout << bdistr_input[i] << " ";
+        if(i % 25 == 0) { std::cout << std::endl; }
+    }
+    std::cout << std::endl;
 
     int b_hits = 0;
 
