@@ -1,7 +1,9 @@
 .DS_Store
 .vscode/
+_deps
 *.o
 *.out
+build/*
 if_list.cpp
 2q_cache.hpp
 clang_help.txt
@@ -17,5 +19,3 @@ src/
 # build/compile_commands.json
 # build/CTestTestfile.cmake
 # ./build/_deps
-build/
-

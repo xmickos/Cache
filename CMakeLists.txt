@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 project(2Q_tests)
+# project(2Q_cache)
 
 
 set(CMAKE_CXX_STANDARD 17)
@@ -26,6 +27,11 @@ add_executable(
 target_link_libraries(
   2q_tests
   GTest::gtest_main
+)
+
+add_executable(
+  2q_cache
+  cache_me_if_you_can.cpp
 )
 
 include(GoogleTest)

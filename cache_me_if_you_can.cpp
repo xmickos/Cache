@@ -1,38 +1,20 @@
 #include "cache_me_if_you_can.hpp"
 
-#define TEST_SIZE 250
-
 int main(int argc, char **argv){
 
-    caches::two_queues<int> my_2q(75, 25);
+    size_t cache_sz, elems_count;
 
-    int *input = new int[TEST_SIZE];
-    bool *results = new bool[TEST_SIZE];
-
-    for(int i = 0; i < TEST_SIZE; i++){
-        input[i] = rand() % TEST_SIZE;
+    if(argc != 2){
+        printf("Usage: %s <cache-size> <input elements count>\n", argv[0]);
+        abort();
     }
 
-    for(int i = 0; i < 15; i++){
-        // std::cout << input[i] << std::endl;
-    }
-
-    size_t summ = 0;
-
-    for(int i = 0; i < TEST_SIZE; i++){
-        results[i] = my_2q.cache_update(input[i]);
-        // std::cout << "i = " << i;
-        // if(results[i] == 1) std::cout << " + (" << summ << ")";
-        // std::cout << std::endl;
-        summ += results[i];
-    }
-
-    std::cout << "Summ is " << summ << std::endl;
-
-    delete [] input;
-    delete [] results;
+    cache_sz = strtol(argv[1], NULL, 10);
+    elems_count = strtol(argv[2], NULL, 10);
 
 
+    printf("Please, enter elements to be cached:\n
+    cache_sz = %zu, elems_count = %ze");
 
     return 0;
 }

@@ -4,30 +4,27 @@
 
 #define TEST_SIZE 10000
 
-TEST(Two_queues, Main_test){
+TEST(Two_queues, Main_test_ints){
 
     caches::two_queues<int> test_qs(75, 25);
 
-//     int *input = new int[TEST_SIZE];
-//     bool *results = new bool[TEST_SIZE];
-//
-//     for(int i = 0; i < TEST_SIZE; i++){
-//         input[i] = rand() % TEST_SIZE;
-//     }
-//
-//     int summ = 0;
-//
-//     for(int i = 0; i < TEST_SIZE; i++){
-//         results[i] = test_qs.cache_update(input[i]);
-//         summ += results[i];
-//     }
-//
-//     std::cout << "////////////////////\n\n";
-//
-//     std::cout << "Summ is " << summ << std::endl;
-//
-//     delete [] input;
-//     delete [] results;
+    int *input = new int[TEST_SIZE];
+
+    for(int i = 0; i < TEST_SIZE; i++){
+        input[i] = rand() % TEST_SIZE;
+    }
+
+    int rnd_hits = 0;
+
+    for(int i = 0; i < TEST_SIZE; i++){
+        rnd_hits += test_qs.cache_update(input[i]);
+    }
+
+    std::cout << "////////////////////\n\n";
+
+    std::cout << "Summ is " << rnd_hits << std::endl;
+
+    delete [] input;
 
     std::default_random_engine generator;
     std::binomial_distribution<int> distribution(1000,0.5);
@@ -51,25 +48,72 @@ TEST(Two_queues, Main_test){
 
     for(int i = 0; i < TEST_SIZE; ++i){
         b_hits += test_qs.cache_update(bdistr_input[i]);
-        std::cout << "\nAfter updating with " << bdistr_input[i] << " we have: " << std::endl <<
-        "Lru:" << std::endl;
-        for(auto it = test_qs.Am.lst_.begin(); it != test_qs.Am.lst_.end(); ++it){
-            std::cout << *it << " ";
-        }
-        std::cout << std::endl << "Ain1:" << std::endl;
-        for(auto it = test_qs.Ain1.lst_.begin(); it != test_qs.Ain1.lst_.end(); ++it){
-            std::cout << *it << " ";
-        }
-        std::cout << std::endl << "Ain2:" << std::endl;
-        for(auto it = test_qs.Ain2.lst_.begin(); it != test_qs.Ain2.lst_.end(); ++it){
-            std::cout << *it << " ";
-        }
-        std::cout << "\n\n\n";
+        // std::cout << "\nAfter updating with " << bdistr_input[i] << " we have: " << std::endl <<
+        // "Lru:" << std::endl;
+        // for(auto it = test_qs.Am.lst_.begin(); it != test_qs.Am.lst_.end(); ++it){
+        //     std::cout << *it << " ";
+        // }
+        // std::cout << std::endl << "Ain1:" << std::endl;
+        // for(auto it = test_qs.Ain1.lst_.begin(); it != test_qs.Ain1.lst_.end(); ++it){
+        //     std::cout << *it << " ";
+        // }
+        // std::cout << std::endl << "Ain2:" << std::endl;
+        // for(auto it = test_qs.Ain2.lst_.begin(); it != test_qs.Ain2.lst_.end(); ++it){
+        //     std::cout << *it << " ";
+        // }
+        // std::cout << "\n\n\n";
     }
 
     std::cout << "Binominal distribution: " << b_hits <<  " HITS." << std::endl;
+    std::cout << "rand() distribution: " << rnd_hits << " HITS." << std::endl;
 
     delete [] bdistr_input;
+
+}
+
+TEST(Two_queues, DISABLED_Main_test_doubles){
+
+    caches::two_queues<double> test_qs(75, 25);
+
+    std::default_random_engine generator;
+    std::normal_distribution<double> distribution(100, 50);
+
+    double *ndistr_input = new double[TEST_SIZE];
+
+    for(int i = 0; i < TEST_SIZE; ++i){
+        ndistr_input[i] = distribution(generator);
+    }
+
+    std::cout << "/////////////////// Input ///////////////////" << std::endl;
+    for(int i = 0; i < TEST_SIZE; ++i){
+        std::cout << ndistr_input[i] << " ";
+        if(i % 25 == 0) { std::cout << std::endl; }
+    }
+    std::cout << std::endl;
+
+    int b_hits = 0;
+
+    for(int i = 0; i < TEST_SIZE; ++i){
+        b_hits += test_qs.cache_update(ndistr_input[i]);
+        // std::cout << "\nAfter updating with " << ndistr_input[i] << " we have: " << std::endl <<
+        // "Lru:" << std::endl;
+        // for(auto it = test_qs.Am.lst_.begin(); it != test_qs.Am.lst_.end(); ++it){
+        //     std::cout << *it << " ";
+        // }
+        // std::cout << std::endl << "Ain1:" << std::endl;
+        // for(auto it = test_qs.Ain1.lst_.begin(); it != test_qs.Ain1.lst_.end(); ++it){
+        //     std::cout << *it << " ";
+        // }
+        // std::cout << std::endl << "Ain2:" << std::endl;
+        // for(auto it = test_qs.Ain2.lst_.begin(); it != test_qs.Ain2.lst_.end(); ++it){
+        //     std::cout << *it << " ";
+        // }
+        // std::cout << "\n\n\n";
+    }
+
+    std::cout << "Normal distribution: " << b_hits <<  " HITS." << std::endl;
+
+    delete [] ndistr_input;
 
 }
 

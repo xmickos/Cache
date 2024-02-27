@@ -3,6 +3,7 @@
 #include<unordered_map>
 #include<cstdlib>
 #include<gtest/gtest.h>
+#include<cstring>
 
 namespace caches {
 
@@ -12,13 +13,12 @@ namespace caches {
 
 template <typename T>
 struct lru_cache {
+
     int capacity_;
     std::list<T> lst_;
     std::unordered_map<int, typename std::list<T>::iterator> htable_;
 
-    lru_cache(int capacity = DEFAULT_MAIN_SZ) : lst_(), htable_(), capacity_(capacity) {
-        std::cout << "Initialized lru_cache with capacity_ == " << capacity_ << std::endl;
-    }
+    lru_cache(int capacity = DEFAULT_MAIN_SZ) : capacity_(capacity), lst_(), htable_() { }
 
     bool find_elem(T value) const {
         return htable_.find(value) != htable_.end();
@@ -29,11 +29,10 @@ struct lru_cache {
     }
 
     void insert_elem(T value) {
-        // если кэш полон, вытеснить последний элемент <-- ???
+        // если кэш полон, вытеснить последний элемент
         // если в кэше есть указанный элемент, переместить его на первое место
 
         if(htable_.find(value) == htable_.end()){
-            std::cout << "Elem " << value << " not finded!" << std::endl;
             if(is_full()){
                 auto it = lst_.back();
                 htable_.erase(it);
@@ -42,7 +41,6 @@ struct lru_cache {
             lst_.push_front(value);
             htable_.insert({value, lst_.begin()});
         }else{
-            std::cout << "Elem " << value << " finded ! " << std::endl;
             auto it = htable_.at(value);
 
             T tmp = *it;
@@ -66,10 +64,9 @@ template <typename T>
 struct fifo {
     int capacity_;
     std::list<T> lst_;
-    // std::unordered_map<int, typename std::list<typename std::list<T>::iterator>*> htable_;
     std::unordered_multimap<int, typename std::list<T>::iterator> htable_;
 
-    fifo(int capacity = DEFAULT_A_IN_SZ) : lst_(), htable_(), capacity_(capacity) { }
+    fifo(int capacity = DEFAULT_A_IN_SZ) : capacity_(capacity), lst_(), htable_() { }
 
     bool is_full() const {
         return lst_.size() == capacity_;
@@ -85,35 +82,20 @@ struct fifo {
 
     void insert_elem(T value) {
         if(is_full()){
-            // std::cout << "Deleting " << lst_.back() << " in count of " << htable_.count(lst_.back()) << ", find was "
-                // << find_elem(lst_.back());
-
             auto it_rng = htable_.equal_range(lst_.back());
 
             htable_.erase(it_rng.first);
             lst_.pop_back();
-
-            // std::cout << ", new size is " << htable_.size() << std::endl;
         }
 
         lst_.push_front(value);
-
-        // std::cout << "insert_elem(" << value << "), find_elem(" << value << ") = " << find_elem(value) <<
-            // " (before inserting)";
-
         htable_.insert({value, lst_.begin()});
-
-        // std::cout << ", size = " << htable_.size() << ", find(" << value << ") = " << find_elem(value)
-            // << "- after. Now is_full is " << is_full() << std::endl;
     }
 
     void erase_elem(T value) {
         if(find_elem(value)){
-            // std::cout << "finded elem " << value << " for erasing, trying to erase: ";
             auto range = htable_.equal_range(value);
-            // if(range.first == htable_.end()){ std::cout << "zero range!"; }
             for(auto it = range.first; it != range.second; ++it){
-                // std::cout << it->first << " == " << *(it->second);
                 lst_.erase(it->second);
             }
             htable_.erase(value);
@@ -128,8 +110,8 @@ struct two_queues {
     lru_cache<T> Am;
     fifo<T> Ain1, Ain2;
 
-    two_queues(int lrg_sz = DEFAULT_MAIN_SZ, int smll_sz = DEFAULT_A_IN_SZ) : Am(lrg_sz_), Ain1(smll_sz_), Ain2(lrg_sz_),
-        lrg_sz_(lrg_sz), smll_sz_(smll_sz) { }
+    two_queues(int lrg_sz = DEFAULT_MAIN_SZ, int smll_sz = DEFAULT_A_IN_SZ) : lrg_sz_(lrg_sz), smll_sz_(smll_sz),
+        Am(lrg_sz), Ain1(smll_sz), Ain2(lrg_sz_) { }
 
     bool elem_hit(T value) const {
         return Am.find_elem(value) || Ain1.find_elem(value);
@@ -140,22 +122,9 @@ struct two_queues {
     }
 
     void drag_between_fifos() {
-        std::cout << "Moving elem " << Ain1.lst_.back() << " from Ain1 to Ain2" << std::endl;
-
         T val = Ain1.lst_.back();
         Ain2.insert_elem(val);
         Ain1.erase_elem(val);
-
-        std::cout << "\nAin1:" << std::endl;
-        for(auto it = Ain1.lst_.begin(); it != Ain1.lst_.end(); ++it){
-            std::cout << *it << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "Ain2:" << std::endl;
-        for(auto it = Ain2.lst_.begin(); it != Ain2.lst_.end(); ++it){
-            std::cout << *it << " ";
-        }
-        std::cout << std::endl;
     }
 
     void update_fifos(T value) {
@@ -170,7 +139,6 @@ struct two_queues {
     }
 
     void drag_into_lru(T value) {
-        // T val = *((Ain2.htable_.at(value))->back());
         T val = *(Ain2.htable_.equal_range(value).first->second);
         Am.insert_elem(val);
         Ain2.erase_elem(val);
