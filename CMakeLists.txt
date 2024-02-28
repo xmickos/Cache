@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 project(2Q_tests)
-# project(2Q_cache)
+project(2Q_cache)
 
 
 set(CMAKE_CXX_STANDARD 17)
@@ -30,7 +30,7 @@ target_link_libraries(
 )
 
 add_executable(
-  2q_cache
+  2Q_cache
   cache_me_if_you_can.cpp
 )
 

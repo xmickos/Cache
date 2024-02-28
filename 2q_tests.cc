@@ -4,7 +4,7 @@
 
 #define TEST_SIZE 10000
 
-TEST(Two_queues, Main_test_ints){
+TEST(Two_queues, DISABLED_Main_test_ints){
 
     caches::two_queues<int> test_qs(75, 25);
 
@@ -66,6 +66,20 @@ TEST(Two_queues, Main_test_ints){
 
     std::cout << "Binominal distribution: " << b_hits <<  " HITS." << std::endl;
     std::cout << "rand() distribution: " << rnd_hits << " HITS." << std::endl;
+
+    //Perfect strategy:
+
+
+    b_hits = 0;
+    for(int i = 0; i < test_qs.Am.capacity_; ++i){
+        b_hits += test_qs.cache_update(bdistr_input[i]);
+    }
+
+    for(size_t i = test_qs.Am.capacity_; i < TEST_SIZE; ++i){
+
+        b_hits += test_qs.cache_update(bdistr_input[i]);
+    }
+
 
     delete [] bdistr_input;
 
@@ -344,5 +358,91 @@ TEST(Two_queues, DISABLED_LRU_isolated){
     std::cout << "Binomial distribution: " << b_hits << "." << std::endl;
 
     delete [] bdistr_input;
+
+}
+
+TEST(Two_queues, DISABLED_next_func){
+
+    std::list<int> lst;
+
+    lst.push_back(1);
+    lst.push_back(2);
+    lst.push_back(3);
+    lst.push_back(4);
+
+    // std::swap(std::next(lst.begin(), 1), std::next(lst.begin(), lst.size() - 1));
+
+
+    for(auto it = lst.begin(); it != lst.end(); ++it){
+        std::cout << *it << " ";
+    }
+
+    std::cout << std::endl;
+}
+
+TEST(Two_queues, Perfect_caching){
+    size_t cache_sz = 10, elems_count = 1000;
+    int *input = new int[elems_count]{};
+
+    for(int i = 0; i < elems_count; ++i){
+        input[i] = rand() % 15;
+    }
+
+    caches::two_queues<int> two_q(cache_sz, cache_sz / 3);
+
+    std::cout << "\t\t\t///////\\\\\\\\" << std::endl << "CACHE_SIZE: " << cache_sz << " & " << two_q.Ain1.capacity_
+    << std::endl << "INPUT:";
+
+    for(int i = 0; i < elems_count; ++i){
+        if(i % 25 == 0) std::cout << std::endl;
+
+        std::cout << input[i] << " ";
+    }
+
+    std::cout << std::endl;
+
+    int elem;
+    size_t hits = 0;
+
+
+    for(size_t i = 0; i < elems_count; ++i){
+        elem = input[i];
+        hits += two_q.cache_update(elem);
+    }
+
+    std::cout << two_q.Am.lst_.size() << " - size, " << std::distance(two_q.Am.lst_.begin(), two_q.Am.lst_.end()) << " - distance." << std::endl;
+
+
+    std::cout << hits << " hits." << std::endl;
+
+
+    std::cout << "Perfect caching:" << std::endl;
+    hits = 0;
+    for(int i = 0; i < elems_count; ++i){
+        // if(two_q.Am.find_elem(input[i])){ two_q.Am.perfect_caching(input + i); }
+        two_q.Am.perfect_caching(input + i, i < elems_count - two_q.Am.lst_.size() ? two_q.Am.lst_.size() : elems_count - i);
+        hits += two_q.cache_update(input[i]);
+
+        std::cout << "\nAfter updating with " << input[i] << " we have: " << std::endl <<
+        "Lru:" << std::endl;
+        for(auto it =  two_q.Am.lst_.begin(); it != two_q.Am.lst_.end(); ++it){
+            std::cout << *it << " ";
+        }
+        std::cout << std::endl << "Ain1:" << std::endl;
+        for(auto it = two_q.Ain1.lst_.begin(); it != two_q.Ain1.lst_.end(); ++it){
+            std::cout << *it << " ";
+        }
+        std::cout << std::endl << "Ain2:" << std::endl;
+        for(auto it = two_q.Ain2.lst_.begin(); it != two_q.Ain2.lst_.end(); ++it){
+            std::cout << *it << " ";
+        }
+        std::cout << "\n\n\n";
+    }
+    std::cout << hits << " hits." << std::endl;
+
+
+    delete [] input;
+
+
 
 }

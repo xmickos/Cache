@@ -4,17 +4,37 @@ int main(int argc, char **argv){
 
     size_t cache_sz, elems_count;
 
-    if(argc != 2){
-        printf("Usage: %s <cache-size> <input elements count>\n", argv[0]);
-        abort();
+    scanf("%zu", &cache_sz);
+    scanf("%zu", &elems_count);
+
+    int elem;
+    size_t hits = 0;
+
+    int *input = new int[elems_count]{};
+
+    caches::two_queues<int> two_q(cache_sz, cache_sz / 3);
+
+    for(size_t i = 0; i < elems_count; ++i){
+        scanf("%d", &elem);
+        hits += two_q.cache_update(elem);
+        input[i] = elem;
     }
 
-    cache_sz = strtol(argv[1], NULL, 10);
-    elems_count = strtol(argv[2], NULL, 10);
+
+    std::cout << hits << " hits." << std::endl;
+
+    caches::two_queues<int> two_qs(cache_sz, cache_sz / 3);
+
+    std::cout << "Perfect caching:" << std::endl;
+    hits = 0;
+    for(int i = 0; i < elems_count; ++i){
+        two_q.Am.perfect_caching(input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
+        hits += two_qs.cache_update(input[i]);
+    }
+    std::cout << hits << " hits." << std::endl;
 
 
-    printf("Please, enter elements to be cached:\n
-    cache_sz = %zu, elems_count = %ze");
+    delete [] input;
 
     return 0;
 }
