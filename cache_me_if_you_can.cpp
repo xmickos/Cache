@@ -28,13 +28,15 @@ int main(int argc, char **argv){
     std::cout << "Perfect caching:" << std::endl;
     hits = 0;
     for(int i = 0; i < elems_count; ++i){
-        two_q.Am.perfect_caching(input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
-        hits += two_qs.cache_update(input[i]);
+        // two_q.Am.perfect_caching(input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
+        hits += two_qs.perfect_cache_update(input[i], input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
     }
     std::cout << hits << " hits." << std::endl;
 
 
     delete [] input;
+
+
 
     return 0;
 }
