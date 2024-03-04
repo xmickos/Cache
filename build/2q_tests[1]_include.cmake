@@ -1,5 +1,0 @@
-if(EXISTS "/Users/xmickos/Desktop/govno.jopa.kosmos/Programming/Vladimirov/2Q_Cache/build/2q_tests[1]_tests.cmake")
-  include("/Users/xmickos/Desktop/govno.jopa.kosmos/Programming/Vladimirov/2Q_Cache/build/2q_tests[1]_tests.cmake")
-else()
-  add_test(2q_tests_NOT_BUILT 2q_tests_NOT_BUILT)
-endif()

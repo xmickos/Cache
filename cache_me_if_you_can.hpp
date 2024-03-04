@@ -12,7 +12,7 @@ namespace caches {
 #define FLOAT_TOLERANCE 1e-5
 
 struct cache_szs_{
-    int sz1 = 0, sz2 = 0;
+    size_t sz1 = 0, sz2 = 0;
 };
 
 template <typename U>
@@ -21,9 +21,9 @@ struct cache_list_iters{
 };
 
 template <typename T>
-class lru_cache {
+struct lru_cache {
 
-    int capacity_;
+    size_t capacity_;
     std::list<T> lst_;
     std::unordered_map<T, typename std::list<T>::iterator> htable_;
 
@@ -48,6 +48,7 @@ class lru_cache {
 
         cache_szs_ size() const {
             cache_szs_ sizes = { lst_.size(), htable_.size() };
+            return sizes;
         }
 
         void insert_elem(const T& value) {
@@ -95,7 +96,6 @@ class lru_cache {
             int swap_len_request = -1;
 
             for(size_t i = 0; i < wrkbl_sz; ++i){
-                // if(input[i] == curr_last){
                 if(fabs(input[i] - curr_last) < FLOAT_TOLERANCE){
                     swap_len_request = i;
                     break;
@@ -109,7 +109,6 @@ class lru_cache {
                     swap_len_reply = -1;
 
                     for(int i = 0; i < wrkbl_sz; ++i){
-                        // if(input[i] == *it){
                         if(fabs(input[i] - *it) < FLOAT_TOLERANCE){
                             swap_len_reply = i;
                             break;
@@ -138,7 +137,7 @@ class lru_cache {
 
 template <typename T>
 struct fifo {
-    int capacity_;
+    size_t capacity_;
     std::list<T> lst_;
     std::unordered_multimap<int, typename std::list<T>::iterator> htable_;
 
@@ -181,12 +180,25 @@ struct fifo {
                 htable_.erase(value);
             }
         }
+
+        cache_list_iters<T> get_list_iter() const {
+            cache_list_iters<T> iters = { lst_.cbegin(), lst_.cend() };
+            return iters;
+        }
+
+        cache_szs_ size() const {
+            cache_szs_ sizes = { lst_.size(), htable_.size() };
+            return sizes;
+        }
+
+
+        int capacity() const { return capacity_; }
 };
 
 
 template <typename T>
 class two_queues {
-    int lrg_sz_, smll_sz_;
+    size_t lrg_sz_, smll_sz_;
     lru_cache<T> Am;
     fifo<T> Ain1, Ain2;
 

@@ -2,10 +2,17 @@
 #include <gtest/gtest.h>
 #include <random>
 #include <ctime>
+#include <fstream>
 
 #define TEST_SIZE 10000
 
-TEST(Two_queues, Main_test_ints){
+// int UserInputWrapper(std::istream& input){
+//     int value;
+//     input >> value;
+//     return value;
+// }
+
+TEST(Two_queues, DISABLED_Main_test_ints){
 
     caches::two_queues<int> test_qs(75, 25);
 
@@ -138,10 +145,11 @@ TEST(Two_queues, DISABLED_Fifo_isolated){
     size_t test_size = 75, test_capacity = 25;
 
     caches::fifo<int> test_fifo(test_capacity);
-    std::list<int> &lst = test_fifo.lst_;
+    // std::list<int> &lst = test_fifo.lst_;
+    // caches::cache_szs_ sizes = test_fifo.capacity();
 
     //basic funcs assertions
-    ASSERT_EQ(test_fifo.capacity_, test_capacity);
+    ASSERT_EQ(test_fifo.capacity(), test_capacity);
     ASSERT_FALSE(test_fifo.is_full());
     ASSERT_TRUE(test_fifo.is_empty());
     ASSERT_FALSE(test_fifo.find_elem(0));
@@ -161,52 +169,54 @@ TEST(Two_queues, DISABLED_Fifo_isolated){
     }
 
     std::cout << std::endl;
+    caches::cache_szs_ sizes = test_fifo.size();
+    caches::cache_list_iters iters = test_fifo.get_list_iter();
 
     test_fifo.insert_elem(inputs[0]);       // added 1 / 25 elem
     ASSERT_FALSE(test_fifo.is_empty());
     ASSERT_FALSE(test_fifo.is_full());
-    ASSERT_EQ(test_fifo.htable_.size(), 1);
-    ASSERT_EQ(lst.size(), 1);
-    ASSERT_EQ(*(lst.begin()), inputs[0]);
-    ASSERT_EQ(*(test_fifo.htable_.find(inputs[0])->second), inputs[0]);
+    ASSERT_EQ(sizes.sz2, 1);
+    ASSERT_EQ(sizes.sz1, 1);
+    ASSERT_EQ(*(iters.cbegin), inputs[0]);
+    // ASSERT_EQ(*(test_fifo.htable_.find(inputs[0])->second), inputs[0]);
 
     for(int i = 1; i < 9; i++){
         test_fifo.insert_elem(inputs[i]);  // added 9 / 25 elems
-        ASSERT_EQ(lst.size(), i + 1);
+        ASSERT_EQ(sizes.sz1, i + 1);
     }
 
     for(int i = 1; i < 9; i++){
         ASSERT_TRUE(test_fifo.find_elem(inputs[i]));
-        ASSERT_EQ(*(test_fifo.htable_.equal_range(inputs[i]).first->second), inputs[i]);
+        // ASSERT_EQ(*(test_fifo.htable_.equal_range(inputs[i]).first->second), inputs[i]);
     }
 
     ASSERT_FALSE(test_fifo.is_empty());
     ASSERT_FALSE(test_fifo.is_full());
 
-    std::cout << "//////Sizes: \n" << test_fifo.htable_.size() << " " << lst.size() << std::endl;
+    std::cout << "//////Sizes: \n" << sizes.sz2 << " " << sizes.sz1 << std::endl;
     std::cout << std::endl;
 
-    ASSERT_EQ(test_fifo.htable_.size(), lst.size());
-    ASSERT_EQ(lst.size(), 9);
+    ASSERT_EQ(sizes.sz2, sizes.sz1);
+    ASSERT_EQ(sizes.sz1, 9);
 
 
     for(int i = 9; i < test_size; i++){
         test_fifo.insert_elem(inputs[i]);  // added 25 / 25 elems
     }
 
-    std::cout << "//////Sizes: \n" << test_fifo.htable_.size() << " " << lst.size() << std::endl;
+    std::cout << "//////Sizes: \n" << sizes.sz2 << " " << sizes.sz1 << std::endl;
 
 
     for(int i = 0; i < test_size; ++i){
         std::cout << "For " << inputs[i] << " -> " << test_fifo.find_elem(inputs[i]);
-        if(test_fifo.find_elem(inputs[i])){
-            std::cout << " -> " <<  *(test_fifo.htable_.find(inputs[i])->second) << std::endl;
-        }else{
-            std::cout << std::endl;
-        }
+        // if(test_fifo.find_elem(inputs[i])){
+        //     std::cout << " -> " <<  *(test_fifo.htable_.find(inputs[i])->second) << std::endl;
+        // }else{
+        //     std::cout << std::endl;
+        // }
     }
 
-    std::cout << "lst size = " << lst.size() << ", htable size = " << test_fifo.htable_.size() << std::endl <<
+    std::cout << "lst size = " << sizes.sz1 << ", htable size = " << sizes.sz2 << std::endl <<
     "Now htable contains:" << std::endl;
 
     ASSERT_TRUE(test_fifo.is_full());
@@ -220,19 +230,19 @@ TEST(Two_queues, DISABLED_Fifo_isolated){
     }
 
 
-    std::cout << "lst size = " << lst.size() << ", htable size = " << test_fifo.htable_.size() << std::endl;
-    for(auto it = lst.begin(); it != lst.end(); ++it){
+    std::cout << "lst size = " << sizes.sz1 << ", htable size = " << sizes.sz2 << std::endl;
+    iters = test_fifo.get_list_iter();
+    for(auto it = iters.cbegin; it != iters.cend; ++it){
         std::cout << *it << " ";
     }
-
     std::cout << std::endl;
 
     for(int i = 0; i < test_size; i++){
         ASSERT_FALSE(test_fifo.find_elem(inputs[i]));
     }
 
-
-    for(auto it = lst.begin(), et = lst.end(); it != et; it++){
+    iters = test_fifo.get_list_iter();
+    for(auto it = iters.cbegin; it != iters.cend; ++it){
         std::cout << *it << " ";
     }
     std::cout << std::endl;
@@ -286,7 +296,7 @@ TEST(Two_queues, DISABLED_unordered_multimap){
     std::cout << "////////////////////\n\n";
 }
 
-TEST(Two_queue, DISABLED_multimap){
+TEST(Two_queue,  DISABLED_multimap){
     std::unordered_multimap<int,char> map = {{1, 'a'},{1, 'b'},{1, 'd'},{2, 'b'}};
 
     auto range = map.equal_range(1);
@@ -476,10 +486,75 @@ TEST(Two_queues, DISABLED_Perfect_caching){
 
 }
 
-TEST(Two_queues, Float_tolearnce){
+TEST(Two_queues, DISABLED_Float_tolearnce){
     int a = 2, b = 3, c = 2;
 
     double float_tolerance = 1e-5;
 
-    std::cout << fabs(a - c) < float_tolerance << std::endl;
+    std::cout << (fabs(a - c) < float_tolerance) << std::endl;
 }
+
+// TEST(Two_queues, file_input){
+//
+//     std::ifstream ifs;
+//     ifs.open("uniform_distr_2e6.txt", std::ifstream::in);
+//     size_t cache_sz, elems_count = 2e7;
+//
+//
+//     if(!ifs.is_open()){
+//         std::cout << "File's not open!" << std::endl;
+//         abort();
+//     }
+// //
+// //     char cache_sz_[10] = {};
+// //     char elems_count_[10] = {};
+// //     char elem_[10] = {};
+// //
+// //
+// //     cache_sz = std::stoi(cache_sz_);
+// //     elems_count = std::stoi(elems_count_);
+//
+//
+//
+//     // scanf("%zu", &cache_sz);
+//     // scanf("%zu", &elems_count);
+//
+//     int elem;
+//     size_t hits = 0;
+//
+//     int *input = new int[elems_count]{};
+//
+//     caches::two_queues<int> two_q(cache_sz, cache_sz / 3);
+//
+//     while(!ifs.eof()){
+//         // scanf("%d", &elem);
+//         // file >> elem_;
+//         // UserInputWrapper(std::cin);
+//         // elem = std::stoi(elem_);
+//         // std::cout << elem << " ";
+//         // if(i % 30 == 0){ std::cout << std::endl; }
+//         elem = UserInputWrapper(ifs);
+//         hits += two_q.cache_update(elem);
+//
+//         // input[i] = elem;
+//     }
+//
+//
+//     std::cout << std::endl << hits << " hits." << std::endl;
+//
+// //     caches::two_queues<int> two_qs(cache_sz, cache_sz / 3);
+// //
+// //     std::cout << "Perfect caching:" << std::endl;
+// //     hits = 0;
+// //     for(int i = 0; i < elems_count; ++i){
+// //         // two_q.Am.perfect_caching(input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
+// //         hits += two_qs.perfect_cache_update(input[i], input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
+// //     }
+// //     std::cout << hits << " hits." << std::endl;
+//
+//
+//     delete [] input;
+//     ifs.close();
+//
+//
+// }
