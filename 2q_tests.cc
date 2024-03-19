@@ -6,11 +6,6 @@
 
 #define TEST_SIZE 10000
 
-// int UserInputWrapper(std::istream& input){
-//     int value;
-//     input >> value;
-//     return value;
-// }
 
 TEST(Two_queues, DISABLED_Main_test_ints){
 
@@ -56,20 +51,22 @@ TEST(Two_queues, DISABLED_Main_test_ints){
 
     for(int i = 0; i < TEST_SIZE; ++i){
         b_hits += test_qs.cache_update(bdistr_input[i]);
-        // std::cout << "\nAfter updating with " << bdistr_input[i] << " we have: " << std::endl <<
-        // "Lru:" << std::endl;
-        // for(auto it = test_qs.Am.lst_.begin(); it != test_qs.Am.lst_.end(); ++it){
-        //     std::cout << *it << " ";
-        // }
-        // std::cout << std::endl << "Ain1:" << std::endl;
-        // for(auto it = test_qs.Ain1.lst_.begin(); it != test_qs.Ain1.lst_.end(); ++it){
-        //     std::cout << *it << " ";
-        // }
-        // std::cout << std::endl << "Ain2:" << std::endl;
-        // for(auto it = test_qs.Ain2.lst_.begin(); it != test_qs.Ain2.lst_.end(); ++it){
-        //     std::cout << *it << " ";
-        // }
-        // std::cout << "\n\n\n";
+#if 0
+        std::cout << "\nAfter updating with " << bdistr_input[i] << " we have: " << std::endl <<
+        "Lru:" << std::endl;
+        for(auto it = test_qs.Am.lst_.begin(); it != test_qs.Am.lst_.end(); ++it){
+            std::cout << *it << " ";
+        }
+        std::cout << std::endl << "Ain1:" << std::endl;
+        for(auto it = test_qs.Ain1.lst_.begin(); it != test_qs.Ain1.lst_.end(); ++it){
+            std::cout << *it << " ";
+        }
+        std::cout << std::endl << "Ain2:" << std::endl;
+        for(auto it = test_qs.Ain2.lst_.begin(); it != test_qs.Ain2.lst_.end(); ++it){
+            std::cout << *it << " ";
+        }
+        std::cout << "\n\n\n";
+#endif
     }
 
     std::cout << "Binominal distribution: " << b_hits <<  " HITS." << std::endl;
@@ -118,20 +115,22 @@ TEST(Two_queues, DISABLED_Main_test_doubles){
 
     for(int i = 0; i < TEST_SIZE; ++i){
         b_hits += test_qs.cache_update(ndistr_input[i]);
-        // std::cout << "\nAfter updating with " << ndistr_input[i] << " we have: " << std::endl <<
-        // "Lru:" << std::endl;
-        // for(auto it = test_qs.Am.lst_.begin(); it != test_qs.Am.lst_.end(); ++it){
-        //     std::cout << *it << " ";
-        // }
-        // std::cout << std::endl << "Ain1:" << std::endl;
-        // for(auto it = test_qs.Ain1.lst_.begin(); it != test_qs.Ain1.lst_.end(); ++it){
-        //     std::cout << *it << " ";
-        // }
-        // std::cout << std::endl << "Ain2:" << std::endl;
-        // for(auto it = test_qs.Ain2.lst_.begin(); it != test_qs.Ain2.lst_.end(); ++it){
-        //     std::cout << *it << " ";
-        // }
-        // std::cout << "\n\n\n";
+#if 0
+        std::cout << "\nAfter updating with " << ndistr_input[i] << " we have: " << std::endl <<
+        "Lru:" << std::endl;
+        for(auto it = test_qs.Am.lst_.begin(); it != test_qs.Am.lst_.end(); ++it){
+            std::cout << *it << " ";
+        }
+        std::cout << std::endl << "Ain1:" << std::endl;
+        for(auto it = test_qs.Ain1.lst_.begin(); it != test_qs.Ain1.lst_.end(); ++it){
+            std::cout << *it << " ";
+        }
+        std::cout << std::endl << "Ain2:" << std::endl;
+        for(auto it = test_qs.Ain2.lst_.begin(); it != test_qs.Ain2.lst_.end(); ++it){
+            std::cout << *it << " ";
+        }
+        std::cout << "\n\n\n";
+#endif
     }
 
     std::cout << "Normal distribution: " << b_hits <<  " HITS." << std::endl;
@@ -254,56 +253,7 @@ TEST(Two_queues, DISABLED_Fifo_isolated){
     delete [] inputs;
 }
 
-TEST(Two_queues, DISABLED_unordered_multimap){
 
-    size_t test_size = 75, test_capacity = 25;
-
-    // caches::fifo<int> test_fifo(test_capacity);
-    // std::list<int> &lst = test_fifo.lst_;
-    std::unordered_multimap<int, char> htable_;
-
-
-    htable_.insert({1, 'a'});
-    htable_.insert({1, 'b'});
-    htable_.insert({1, 'c'});
-    htable_.insert({1, 'd'});
-    htable_.insert({2, 'e'});
-    htable_.insert({2, 'f'});
-    htable_.insert({2, 'g'});
-    htable_.insert({2, 'h'});
-
-
-    std::cout << "////////////////////\n\n";
-
-
-    // std::cout << std::endl;
-    // for(auto it = htable_.cbegin(); it != htable_.cend(); it++){
-    //     std::cout << it->first << " " << it->second << std::endl;
-    // }
-
-    auto rng = htable_.equal_range(1);
-    std::cout << "it = " << rng.first->second << ", size = " << htable_.size() << std::endl;
-
-    htable_.erase(std::next(rng.first, htable_.bucket_size(1) - 1));
-
-    std::cout << "Size = " << htable_.size() << std::endl;
-
-    std::cout << std::endl;
-    for(auto it = htable_.cbegin(); it != htable_.cend(); it++){
-        std::cout << it->first << " " << it->second << std::endl;
-    }
-
-    std::cout << "////////////////////\n\n";
-}
-
-TEST(Two_queue,  DISABLED_multimap){
-    std::unordered_multimap<int,char> map = {{1, 'a'},{1, 'b'},{1, 'd'},{2, 'b'}};
-
-    auto range = map.equal_range(1);
-
-    for (auto it = range.first; it != range.second; ++it)
-        std::cout << it->first << ' ' << it->second << '\n';
-}
 
 TEST(Two_queues, DISABLED_LRU_isolated){
 
@@ -378,24 +328,6 @@ TEST(Two_queues, DISABLED_LRU_isolated){
 
 }
 
-TEST(Two_queues, DISABLED_next_func){
-
-    std::list<int> lst;
-
-    lst.push_back(1);
-    lst.push_back(2);
-    lst.push_back(3);
-    lst.push_back(4);
-
-    // std::swap(std::next(lst.begin(), 1), std::next(lst.begin(), lst.size() - 1));
-
-
-    for(auto it = lst.begin(); it != lst.end(); ++it){
-        std::cout << *it << " ";
-    }
-
-    std::cout << std::endl;
-}
 
 TEST(Two_queues, DISABLED_Perfect_caching){
 
@@ -412,12 +344,6 @@ TEST(Two_queues, DISABLED_Perfect_caching){
     std::cout << "\t\t\t///////\\\\\\\\" << std::endl << "CACHE_SIZE: " << cache_sz << " & " << cache_sz / 3
     << std::endl << "INPUT:";
 
-//     for(int i = 0; i < elems_count; ++i){
-//         if(i % 25 == 0) std::cout << std::endl;
-//
-//         // std::cout << input[i] << " ";
-//     }
-
     std::cout << std::endl;
 
     int elem;
@@ -431,7 +357,7 @@ TEST(Two_queues, DISABLED_Perfect_caching){
         hits += two_q.cache_update(elem);
 
         if(elems_count * (percentage + 1) > i * 100 && elems_count * percentage <= i * 100){
-            // std::cout << "Done: " << percentage << "%" << std::endl;
+            std::cout << "Done: " << percentage << "%" << std::endl;
         }else{
             percentage++;
             std::cout << "Done: " << percentage << "%" << std::endl;
@@ -442,119 +368,147 @@ TEST(Two_queues, DISABLED_Perfect_caching){
 
     std::cout << "Time: " << (double)(end - start) / CLOCKS_PER_SEC << std::endl;
 
-    // std::cout << two_q.Am.lst_.size() << " - size, " << std::distance(two_q.Am.lst_.begin(), two_q.Am.lst_.end()) << " - distance." << std::endl;
-
 
     std::cout << hits << " hits." << std::endl;
 
 
     std::cout << "Perfect caching:" << std::endl;
     hits = 0;
+#if 0
+    for(int i = 0; i < elems_count; ++i){
+        two_q.Am.perfect_caching(input + i, i < elems_count - two_q.Am.lst_.size() ? two_q.Am.lst_.size() : elems_count - i);
+        hits += two_q.cache_update(input[i]);
 
-//     for(int i = 0; i < elems_count; ++i){
-//         // if(two_q.Am.find_elem(input[i])){ two_q.Am.perfect_caching(input + i); }
-//         two_q.Am.perfect_caching(input + i, i < elems_count - two_q.Am.lst_.size() ? two_q.Am.lst_.size() : elems_count - i);
-//         hits += two_q.cache_update(input[i]);
-//
-//         if(elems_count * (percentage + 1) > i * 100 && elems_count * percentage <= i * 100){
-//             std::cout << "Done: " << percentage << "%" << std::endl;
-//         }else{
-//             percentage++;
-//         }
-//
-//         // std::cout << "\nAfter updating with " << input[i] << " we have: " << std::endl <<
-//         // "Lru:" << std::endl;
-//         // for(auto it =  two_q.Am.lst_.begin(); it != two_q.Am.lst_.end(); ++it){
-//         //     std::cout << *it << " ";
-//         // }
-//         // std::cout << std::endl << "Ain1:" << std::endl;
-//         // for(auto it = two_q.Ain1.lst_.begin(); it != two_q.Ain1.lst_.end(); ++it){
-//         //     std::cout << *it << " ";
-//         // }
-//         // std::cout << std::endl << "Ain2:" << std::endl;
-//         // for(auto it = two_q.Ain2.lst_.begin(); it != two_q.Ain2.lst_.end(); ++it){
-//         //     std::cout << *it << " ";
-//         // }
-//         // std::cout << "\n\n\n";
-//     }
+        if(elems_count * (percentage + 1) > i * 100 && elems_count * percentage <= i * 100){
+            std::cout << "Done: " << percentage << "%" << std::endl;
+        }else{
+            percentage++;
+        }
+
+        std::cout << "\nAfter updating with " << input[i] << " we have: " << std::endl <<
+        "Lru:" << std::endl;
+        for(auto it =  two_q.Am.lst_.begin(); it != two_q.Am.lst_.end(); ++it){
+            std::cout << *it << " ";
+        }
+        std::cout << std::endl << "Ain1:" << std::endl;
+        for(auto it = two_q.Ain1.lst_.begin(); it != two_q.Ain1.lst_.end(); ++it){
+            std::cout << *it << " ";
+        }
+        std::cout << std::endl << "Ain2:" << std::endl;
+        for(auto it = two_q.Ain2.lst_.begin(); it != two_q.Ain2.lst_.end(); ++it){
+            std::cout << *it << " ";
+        }
+        std::cout << "\n\n\n";
+    }
     std::cout << hits << " hits." << std::endl;
 
 
     delete [] input;
-
+#endif
 
 
 }
 
-TEST(Two_queues, DISABLED_Float_tolearnce){
-    int a = 2, b = 3, c = 2;
+TEST(Two_queues, DISABLED_e2e){
+    std::string str, str_ = "./test_inputs/", str__ = ".txt";
 
-    double float_tolerance = 1e-5;
+    std::cin >> str;
+    str_.insert(str_.end(), str.begin(), str.end());
+    str_.insert(str_.end(), str__.begin(), str__.end());
+    std::cout << "Opening " << str_ << std::endl;
 
-    std::cout << (fabs(a - c) < float_tolerance) << std::endl;
+    std::ifstream in(str_);
+    std::streambuf *cinbuf = std::cin.rdbuf();
+    std::cin.rdbuf(in.rdbuf());
+
+    if(!in.is_open()){
+        std::cout << "Error while opening the file." << std::endl;
+        abort();
+    }
+
+    // main() func copy-paste: ...
+    size_t cache_sz, elems_count;
+
+    std::cin >> cache_sz;
+    std::cin >> elems_count;
+
+    std::cout << "cache_sz = " << cache_sz << ", elems_count = " << elems_count << std::endl;
+
+    int elem = 0;
+    size_t hits = 0;
+    bool is_perfect = false;
+    int hit_ = 0;
+
+    caches::two_queues<int> two_q(cache_sz, cache_sz / 2);
+
+    if(is_perfect){
+        int *input = new int[elems_count]{};
+
+        #ifdef DEBUG_
+        std::cout << "Perfect caching:" << std::endl;
+        #endif
+
+        hits = 0;
+
+
+        for(int i = 0; i < elems_count; ++i){
+            std::cin >> elem;
+            input[i] = elem;
+            hits += two_q.perfect_cache_update(input[i], input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
+
+            #ifdef DEBUG_
+            std::cout << "\nAfter updating with " << elem << " we have: ";
+            hit_ > 0 ? std::cout << "hit" : std::cout << "miss";
+            std::cout << std::endl;
+            for(int j = 0; j < (i < elems_count - cache_sz ? cache_sz : elems_count - i); ++j) std::cout << input[j] << " ";
+            std::cout << std::endl << std::endl << "Lru:" << std::endl;
+            for(auto it =  two_q.Am.lst_.begin(); it != two_q.Am.lst_.end(); ++it){
+                std::cout << *it << " ";
+            }
+            std::cout << std::endl << "Ain1:" << std::endl;
+            for(auto it = two_q.Ain1.lst_.begin(); it != two_q.Ain1.lst_.end(); ++it){
+                std::cout << *it << " ";
+            }
+            std::cout << std::endl << "Ain2:" << std::endl;
+            for(auto it = two_q.Ain2.lst_.begin(); it != two_q.Ain2.lst_.end(); ++it){
+                std::cout << *it << " ";
+            }
+            std::cout << "\n\n\n";
+            #endif
+        }
+        std::cout << hits /*<< " hits." */ << std::endl;
+
+        delete [] input;
+    }else{
+        for(size_t i = 0; i < elems_count; ++i){
+            std::cin >> elem;
+            #ifdef DEBUG_
+            std::cout << "readed " << elem << std::endl;
+            #endif
+            hit_ += two_q.cache_update(elem);
+            hits += hit_;
+
+            #ifdef DEBUG_
+            std::cout << "\nAfter updating with " << elem << " we have: ";
+            hit_ > 0 ? std::cout << "hit" : std::cout << "miss";
+            std::cout << std::endl << std::endl << "Lru:" << std::endl;
+            for(auto it =  two_q.Am.lst_.begin(); it != two_q.Am.lst_.end(); ++it){
+                std::cout << *it << " ";
+            }
+            std::cout << std::endl << "Ain1:" << std::endl;
+            for(auto it = two_q.Ain1.lst_.begin(); it != two_q.Ain1.lst_.end(); ++it){
+                std::cout << *it << " ";
+            }
+            std::cout << std::endl << "Ain2:" << std::endl;
+            for(auto it = two_q.Ain2.lst_.begin(); it != two_q.Ain2.lst_.end(); ++it){
+                std::cout << *it << " ";
+            }
+            std::cout << "\n\n\n";
+            #endif
+        }
+
+        std::cout << hits /* << " hits." */ << std::endl;
+    }
+    std::cin.rdbuf(cinbuf);
+    in.close();
 }
-
-// TEST(Two_queues, file_input){
-//
-//     std::ifstream ifs;
-//     ifs.open("uniform_distr_2e6.txt", std::ifstream::in);
-//     size_t cache_sz, elems_count = 2e7;
-//
-//
-//     if(!ifs.is_open()){
-//         std::cout << "File's not open!" << std::endl;
-//         abort();
-//     }
-// //
-// //     char cache_sz_[10] = {};
-// //     char elems_count_[10] = {};
-// //     char elem_[10] = {};
-// //
-// //
-// //     cache_sz = std::stoi(cache_sz_);
-// //     elems_count = std::stoi(elems_count_);
-//
-//
-//
-//     // scanf("%zu", &cache_sz);
-//     // scanf("%zu", &elems_count);
-//
-//     int elem;
-//     size_t hits = 0;
-//
-//     int *input = new int[elems_count]{};
-//
-//     caches::two_queues<int> two_q(cache_sz, cache_sz / 3);
-//
-//     while(!ifs.eof()){
-//         // scanf("%d", &elem);
-//         // file >> elem_;
-//         // UserInputWrapper(std::cin);
-//         // elem = std::stoi(elem_);
-//         // std::cout << elem << " ";
-//         // if(i % 30 == 0){ std::cout << std::endl; }
-//         elem = UserInputWrapper(ifs);
-//         hits += two_q.cache_update(elem);
-//
-//         // input[i] = elem;
-//     }
-//
-//
-//     std::cout << std::endl << hits << " hits." << std::endl;
-//
-// //     caches::two_queues<int> two_qs(cache_sz, cache_sz / 3);
-// //
-// //     std::cout << "Perfect caching:" << std::endl;
-// //     hits = 0;
-// //     for(int i = 0; i < elems_count; ++i){
-// //         // two_q.Am.perfect_caching(input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
-// //         hits += two_qs.perfect_cache_update(input[i], input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
-// //     }
-// //     std::cout << hits << " hits." << std::endl;
-//
-//
-//     delete [] input;
-//     ifs.close();
-//
-//
-// }

@@ -1,45 +1,36 @@
+#undef DEBUG_
 #include "cache_me_if_you_can.hpp"
 
 int main(int argc, char **argv){
 
     size_t cache_sz, elems_count;
 
-    scanf("%zu", &cache_sz);
-    scanf("%zu", &elems_count);
+    std::cin >> cache_sz;
+    std::cin >> elems_count;
 
     int elem;
     size_t hits = 0;
 
-    // int *input = new int[elems_count]{};
+    caches::two_queues<int> two_q(cache_sz, cache_sz / 2);
 
-    caches::two_queues<int> two_q(cache_sz, cache_sz / 3);
+    if(IS_PERFECT_){
+        int *input = new int[elems_count]{};
 
-    for(size_t i = 0; i < elems_count; ++i){
-        scanf("%d", &elem);
-        hits += two_q.cache_update(elem);
-        // input[i] = elem;
+        for(int i = 0; i < cache_sz; ++i){
+            std::cin >> elem;
+            input[i] = elem;
+            hits += two_q.perfect_cache_update(input[i], input + i, i < cache_sz ? i : cache_sz);
+        }
+
+        delete [] input;
+    }else{
+        for(size_t i = 0; i < elems_count; ++i){
+            std::cin >> elem;
+            hits += two_q.cache_update(elem);
+        }
     }
 
-
-    std::cout << hits /* << " hits." */ << std::endl;
-
-//     caches::two_queues<int> two_qs(cache_sz, cache_sz / 3);
-//
-//     std::cout << "Perfect caching:" << std::endl;
-//     hits = 0;
-//     for(int i = 0; i < elems_count; ++i){
-//             hits += two_qs.perfect_cache_update(input[i], input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
-//     }
-//     std::cout << hits << " hits." << std::endl;
-//
-//
-//     delete [] input;
-
-
+    std::cout << hits  << std::endl;
 
     return 0;
 }
-
-
-
-// g++ -std=c++17 cache_me_if_you_can.cpp -O2 -fsanitize=address,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero -o 2Q.o
