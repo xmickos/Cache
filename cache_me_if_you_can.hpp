@@ -5,6 +5,7 @@
 #include<cstdlib>
 #include<gtest/gtest.h>
 #include<cstring>
+#include<cassert>
 
 namespace caches {
 
@@ -69,11 +70,8 @@ struct lru_cache {
                 #ifdef DEBUG_
                 std::cout << "htable - find." << std::endl;
                 #endif
-                auto it = htable_.at(value);
 
-                #if 0
-                std::cout << "{+++++++++}   Yes, we are here!" << std::endl;
-                #endif
+                auto it = htable_.at(value);
 
                 T tmp = *it;
                 lst_.erase(it);
@@ -94,15 +92,15 @@ struct lru_cache {
         }
 
         void perfect_caching(T* input, int wrkbl_sz) {
-        /*  Алгоритм идеального кэширования: Если элемент находится в "будущем" (массиве input) от текущей позиции дальше,
-        *   чем на capacity_, он не рассматривается. На каждой итерации обновления кэша рассматривается последний элемент
-        *   в кэше. Если в будущих элементах попадается рассматриваемый на расстоянии не более чем в capacity_ от начала,
-        *   имеет смысл оставить последний элемент в кэше, но переместив ближе к началу, чтобы к моменту наступления своей
-        *   очереди он смог быть найден и дал hit. Чтобы переместить его в начало кэша, нужно обменять его местами с некоторым
-        *   другим элементом. Для такого обмена элемент, с которым упомянутый обмен производится, сам не должен стать "бесполезным"
-        *   в кэше, если вдруг в ближайших capacity_ ячейках массива input он будет запрошен. Таким образом, нужно найти, какой
-        *   элемент будет не жалко потерять и запихнуть в конец очереди.
+        /* Алгоритм идеального кэширования: Задача алгоритма - определять, когда элемент, который на следующем шаге должен
+        * вылететь из LRU кэша, может в ближайшем будущем быть востребован, и "спасать" его, меняя местами с таким элементом,
+        * который в ближайшем будущем востребован не будет. Считается, что элемент скоро будет полезен, если он есть в ближайших
+        * lru_size элементах в будущем. Если это выполнено, в LRU ищется элемент, отстоящий достаточно далеко от конца, чтобы обмен
+        * имел смысл, и при этом не имеющий возможности дать hit на ближайших cache_sz элементах в будущем. При нахождении подходящего
+        * кандидата на обмен, последний элемент меняется местами с найденым, и в будущем даёт hit.
         */
+
+            assert(input != nullptr);
             if(!is_full()){ return; }
 
             T curr_last = lst_.back();
@@ -133,6 +131,10 @@ struct lru_cache {
 
                         htable_.erase(*it);
                         htable_.erase(curr_last);
+
+                        #ifdef DEBUG_
+                        std::cout << "Swapped." << std::endl;
+                        #endif
 
                         *it_last = *it;
                         *it = curr_last;
@@ -191,7 +193,6 @@ struct fifo {
 
                 #ifdef DEBUG_
                 std::cout << "fifo.erase_elem(" << value << ")" << std::endl;
-                std::cout << "{+++++++++}   Yes, we are here!" << std::endl;
                 #endif
 
                 for(auto it = range.first; it != range.second; ++it){
@@ -213,9 +214,6 @@ struct fifo {
 
             if(iter.first != iter.second) {
                 iter_last = std::next(iter_last, -1);
-                #ifdef DEBUG_
-                std::cout << "hop !" << std::endl;
-                #endif
             }
 
             htable_.erase(iter_last);
@@ -311,7 +309,7 @@ class two_queues {
 
         void drag_into_lru(const T& value) {
             #ifdef DEBUG_
-            std::cout << "lru_cache.drag_into_lru" << std::endl;
+            std::cout << "2Q.drag_into_lru" << std::endl;
             #endif
 
             Am.insert_elem(value);

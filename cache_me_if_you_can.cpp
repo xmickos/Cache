@@ -11,7 +11,7 @@ int main(int argc, char **argv){
     int elem;
     size_t hits = 0;
 
-    caches::two_queues<int> two_q(cache_sz, cache_sz / 2);
+    caches::two_queues<int> two_q(cache_sz, cache_sz / 3);
 
     if(IS_PERFECT_){
         int *input = new int[elems_count]{};
@@ -30,7 +30,7 @@ int main(int argc, char **argv){
         }
     }
 
-    std::cout << hits  << std::endl;
+    std::cout << hits << std::endl;
 
     return 0;
 }

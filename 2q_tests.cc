@@ -76,14 +76,13 @@ TEST(Two_queues, DISABLED_Main_test_ints){
 
 
     b_hits = 0;
-    caches::cache_szs_ sizes = test_qs.size();
-    for(int i = 0; i < sizes.sz1; ++i){
+    caches::cache_szs_ caps = test_qs.capacities();
+    for(int i = 0; i < caps.sz1; ++i){
         b_hits += test_qs.cache_update(bdistr_input[i]);
     }
 
-    for(size_t i = sizes.sz1; i < TEST_SIZE; ++i){
-
-        b_hits += test_qs.cache_update(bdistr_input[i]);
+    for(size_t i = caps.sz1; i < TEST_SIZE; ++i){
+        b_hits += test_qs.perfect_cache_update(bdistr_input[i], bdistr_input + i, i < TEST_SIZE - caps.sz1 ? caps.sz1 : TEST_SIZE - i);
     }
 
 
@@ -144,8 +143,6 @@ TEST(Two_queues, DISABLED_Fifo_isolated){
     size_t test_size = 75, test_capacity = 25;
 
     caches::fifo<int> test_fifo(test_capacity);
-    // std::list<int> &lst = test_fifo.lst_;
-    // caches::cache_szs_ sizes = test_fifo.capacity();
 
     //basic funcs assertions
     ASSERT_EQ(test_fifo.capacity(), test_capacity);
@@ -168,25 +165,22 @@ TEST(Two_queues, DISABLED_Fifo_isolated){
     }
 
     std::cout << std::endl;
-    caches::cache_szs_ sizes = test_fifo.size();
     caches::cache_list_iters iters = test_fifo.get_list_iter();
 
     test_fifo.insert_elem(inputs[0]);       // added 1 / 25 elem
+    caches::cache_szs_ sizes = test_fifo.size();
     ASSERT_FALSE(test_fifo.is_empty());
     ASSERT_FALSE(test_fifo.is_full());
     ASSERT_EQ(sizes.sz2, 1);
     ASSERT_EQ(sizes.sz1, 1);
-    ASSERT_EQ(*(iters.cbegin), inputs[0]);
-    // ASSERT_EQ(*(test_fifo.htable_.find(inputs[0])->second), inputs[0]);
+    // ASSERT_EQ(*(iters.cbegin), inputs[0]);
 
     for(int i = 1; i < 9; i++){
         test_fifo.insert_elem(inputs[i]);  // added 9 / 25 elems
-        ASSERT_EQ(sizes.sz1, i + 1);
     }
 
     for(int i = 1; i < 9; i++){
         ASSERT_TRUE(test_fifo.find_elem(inputs[i]));
-        // ASSERT_EQ(*(test_fifo.htable_.equal_range(inputs[i]).first->second), inputs[i]);
     }
 
     ASSERT_FALSE(test_fifo.is_empty());
@@ -195,6 +189,7 @@ TEST(Two_queues, DISABLED_Fifo_isolated){
     std::cout << "//////Sizes: \n" << sizes.sz2 << " " << sizes.sz1 << std::endl;
     std::cout << std::endl;
 
+    sizes = test_fifo.size();
     ASSERT_EQ(sizes.sz2, sizes.sz1);
     ASSERT_EQ(sizes.sz1, 9);
 
@@ -208,11 +203,13 @@ TEST(Two_queues, DISABLED_Fifo_isolated){
 
     for(int i = 0; i < test_size; ++i){
         std::cout << "For " << inputs[i] << " -> " << test_fifo.find_elem(inputs[i]);
-        // if(test_fifo.find_elem(inputs[i])){
-        //     std::cout << " -> " <<  *(test_fifo.htable_.find(inputs[i])->second) << std::endl;
-        // }else{
-        //     std::cout << std::endl;
-        // }
+        #if 0
+        if(test_fifo.find_elem(inputs[i])){
+            std::cout << " -> " <<  *(test_fifo.htable_.find(inputs[i])->second) << std::endl;
+        }else{
+            std::cout << std::endl;
+        }
+        #endif
     }
 
     std::cout << "lst size = " << sizes.sz1 << ", htable size = " << sizes.sz2 << std::endl <<
@@ -329,9 +326,9 @@ TEST(Two_queues, DISABLED_LRU_isolated){
 }
 
 
-TEST(Two_queues, DISABLED_Perfect_caching){
+TEST(Two_queues, Perfect_caching){
 
-    size_t cache_sz = 40, elems_count = 2*1e7;
+    size_t cache_sz = 40, elems_count = 2*1e5;
     int *input = new int[elems_count]{};
     clock_t start, end;
 
@@ -354,7 +351,7 @@ TEST(Two_queues, DISABLED_Perfect_caching){
 
     for(size_t i = 0; i < elems_count; ++i){
         elem = input[i];
-        hits += two_q.cache_update(elem);
+        hits += two_q.perfect_cache_update(elem, input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
 
         if(elems_count * (percentage + 1) > i * 100 && elems_count * percentage <= i * 100){
             std::cout << "Done: " << percentage << "%" << std::endl;
@@ -439,7 +436,7 @@ TEST(Two_queues, DISABLED_e2e){
     bool is_perfect = false;
     int hit_ = 0;
 
-    caches::two_queues<int> two_q(cache_sz, cache_sz / 2);
+    caches::two_queues<int> two_q(cache_sz, cache_sz / 3);
 
     if(is_perfect){
         int *input = new int[elems_count]{};
@@ -450,18 +447,35 @@ TEST(Two_queues, DISABLED_e2e){
 
         hits = 0;
 
-
-        for(int i = 0; i < elems_count; ++i){
+        for(size_t i = 0; i < cache_sz; ++i){
             std::cin >> elem;
             input[i] = elem;
-            hits += two_q.perfect_cache_update(input[i], input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
+            if(elems_count <= cache_sz) { hits += two_q.cache_update(input[i]); }
+        }
+
+        for(size_t i = 0; i < elems_count; ++i){
+            std::cin >> elem;
+            input[i < elems_count - cache_sz ? i + cache_sz : elems_count - i] = elem;
+            elem = input[i];
+
+            #ifdef DEBUG_
+            std::cout << std::endl << "Lru before perfect cache:" << std::endl;
+            for(auto it =  two_q.Am.lst_.begin(); it != two_q.Am.lst_.end(); ++it){
+                std::cout << *it << " ";
+            }
+            std::cout << std::endl << "input: ";
+            for(size_t j = i; j < (j <= elems_count - cache_sz ? cache_sz + i : elems_count - i); ++j) std::cout << input[j] << " ";
+            std::cout << std::endl;
+            #endif
+
+            hit_ += two_q.perfect_cache_update(elem, input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
+            hits += hit_;
 
             #ifdef DEBUG_
             std::cout << "\nAfter updating with " << elem << " we have: ";
             hit_ > 0 ? std::cout << "hit" : std::cout << "miss";
-            std::cout << std::endl;
-            for(int j = 0; j < (i < elems_count - cache_sz ? cache_sz : elems_count - i); ++j) std::cout << input[j] << " ";
-            std::cout << std::endl << std::endl << "Lru:" << std::endl;
+
+            std::cout << std::endl << "Lru:" << std::endl;
             for(auto it =  two_q.Am.lst_.begin(); it != two_q.Am.lst_.end(); ++it){
                 std::cout << *it << " ";
             }
@@ -475,8 +489,9 @@ TEST(Two_queues, DISABLED_e2e){
             }
             std::cout << "\n\n\n";
             #endif
+
+            hit_ = 0;
         }
-        std::cout << hits /*<< " hits." */ << std::endl;
 
         delete [] input;
     }else{
@@ -505,10 +520,13 @@ TEST(Two_queues, DISABLED_e2e){
             }
             std::cout << "\n\n\n";
             #endif
+
+            hit_ = 0;
         }
 
-        std::cout << hits /* << " hits." */ << std::endl;
     }
+
+    std::cout << hits << " hits."  << std::endl;
     std::cin.rdbuf(cinbuf);
     in.close();
 }

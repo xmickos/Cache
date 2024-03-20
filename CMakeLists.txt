@@ -41,7 +41,7 @@ add_executable(
   2q_interactive.cpp
 )
 
-target_compile_options(2Q_perfect PRIVATE "-DIS_PERFECT_=1" "-o 2Q_perfect")
+target_compile_options(2Q_perfect PRIVATE "-DIS_PERFECT_=1" "-DDEBUG_" "-o 2Q_perfect")
 target_compile_options(2Q_interactive PRIVATE "-o 2Q_interactive" "-DDEBUG_")
 target_compile_options(2q_tests PRIVATE "-DDEBUG_")
 
@@ -50,7 +50,7 @@ add_executable(
   cache_me_if_you_can.cpp
 )
 
-target_compile_options(2Q_cache PRIVATE "-DIS_PERFECT_=0" "-o 2Q_cache")
+target_compile_options(2Q_cache PRIVATE "-DIS_PERFECT_=0" "-DNDEBUG")
 target_link_options(2Q_cache PRIVATE "-o 2Q_cache")
 
 include(GoogleTest)
