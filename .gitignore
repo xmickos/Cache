@@ -8,7 +8,7 @@ if_list.cpp
 2q_cache.hpp
 clang_help.txt
 src/
-test_inputs/
+# test_inputs/
 lib/
 CMakeFiles/
 Testing/
