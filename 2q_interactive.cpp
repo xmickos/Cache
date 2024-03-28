@@ -2,6 +2,8 @@
 
 int main(int argc, char **argv){
     char choice;
+
+    #if 0
     bool is_perfect;
 
     std::cout << "Will your cache be perfect?[y/n]" << std::endl;
@@ -18,6 +20,7 @@ int main(int argc, char **argv){
             std::cout << "Wrong answer" << std::endl;
             abort();
     }
+    #endif
 
     size_t cache_sz, elems_count;
 
@@ -32,8 +35,8 @@ int main(int argc, char **argv){
 
     caches::two_queues<int> two_q(cache_sz, 2);
 
+    #if 0
     if(is_perfect){
-        // int *input = new int[elems_count]{};
         std::vector<int> input;
         input.reserve(elems_count);
 
@@ -83,6 +86,7 @@ int main(int argc, char **argv){
 
         }
     }else{
+    #endif
         while(1){
             std::cin >> elem;
             hits += two_q.cache_update(elem);
@@ -123,8 +127,9 @@ int main(int argc, char **argv){
             }
             std::cout << "|" << std::endl;
         }
-
+    #if 0
     }
+    #endif
 
     std::cout << hits  << std::endl;
 

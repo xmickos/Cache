@@ -356,7 +356,7 @@ class two_queues {
 
         bool perfect_cache_update(typename std::vector<T>::iterator it, typename std::vector<T>::iterator et){
 
-            // Нет смысла кэшировать уникальный элемент.
+            // Нет смысла кэшировать уникальный элемент
             if(std::none_of(std::next(it, 1), et, [&it](auto&& elt){ return elt == *it; })){
 
                 #ifdef DEBUG_
