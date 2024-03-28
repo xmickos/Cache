@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.15)
 project(2q_tests)
 project(2Q_perfect)
 project(2Q_cache)
@@ -7,8 +7,10 @@ project(2Q_interactive)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "-g -fsanitize=address,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero")
+set(CMAKE_CXX_FLAGS "-g -fsanitize=address,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero" )
 set(CMAKE_BUILD_FILES_DIRECTORY ${./build})
+# set(CMAKE_VERBOSE_MAKEFILE ON)
+set(VERBOSE ON)
 SET(EXECUTABLE_OUTPUT_PATH ${./build})
 
 include(FetchContent)

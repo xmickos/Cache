@@ -7,6 +7,7 @@
 #include<cstring>
 #include<cassert>
 #include<algorithm>
+#include<cmath>
 
 namespace caches {
 
@@ -252,7 +253,7 @@ class two_queues {
             if(first_last != et){
 
                 #ifdef DEBUG_
-                std::cout << "finded : " << *first_last << ", first cond: " << (std::distance(it, first_last) < lrg_cap_ + smll_cap_) <<
+                std::cout << "finded : " << *first_last << ", first cond: " << (std::distance(it, first_last) < 10 * lrg_cap_ + smll_cap_) <<
                  ", second cond: " << (std::distance(it, first_last) > smll_cap_) << ", dist = " << std::distance(it, first_last) << std::endl;
                 #endif
 
@@ -264,7 +265,8 @@ class two_queues {
                     return true;
                 }
 
-                if((std::distance(it, first_last) < 10 * lrg_cap_ + smll_cap_ ) && std::distance(it, first_last) > smll_cap_){
+                if((std::distance(it, first_last) < 10 * lrg_cap_ + smll_cap_ ) && std::distance(it, first_last) > smll_cap_ ||
+                    std::any_of(std::next(first_last, 1), et, [&first_last](auto&& elt){ return elt == *first_last; })){
                     return true;
                 }
 
@@ -275,59 +277,6 @@ class two_queues {
 
             return false;
         }
-
-        void perfect_caching(typename std::vector<T>::iterator it, typename std::vector<T>::iterator et){
-        /* Алгоритм идеального кэширования: Задача алгоритма - определять, когда элемент, который на следующем шаге должен
-        * вылететь из LRU кэша, может в ближайшем будущем быть востребован, и "спасать" его, меняя местами с таким элементом,
-        * который в ближайшем будущем востребован не будет. Считается, что элемент скоро будет полезен, если он есть в ближайших
-        * lru_size элементах в будущем. Если это выполнено, в LRU ищется элемент, отстоящий достаточно далеко от конца, чтобы обмен
-        * имел смысл, и при этом не имеющий возможности дать hit на ближайших cache_sz элементах в будущем. При нахождении подходящего
-        * кандидата на обмен, последний элемент меняется местами с найденым, и в будущем даёт hit.
-        */
-            if(!Am.is_full()){ return; }
-            std::cout << "Am.perfect_caching()" << std::endl;
-
-            T curr_last = Am.lst_.back();
-
-            auto iter = std::find_if(it, et, [&curr_last, &it, &et](auto&& elt) {
-                                     return (std::abs(elt - curr_last) < FLOAT_TOLERANCE); });
-
-            if(iter != et){
-                size_t distance = std::distance(it, iter);
-
-                #if 0
-                auto it_ = std::find_if( lst_.begin(), iter,
-                                        std::none_of(it, et,
-                                                    [](auto&& elt, auto&& alt){ return (std::abs(elt - alt) < FLOAT_TOLERANCE); }));
-                #endif
-
-                // Найти элемент, который не встречается в ближайшем input'е и при этом стоит в списке достаточно рано
-                auto it_ = Am.lst_.begin(),  et_ = Am.lst_.end();
-                for(; std::distance(it_, et_) > distance; ++it_){
-                    if(std::none_of(it, et, [&it_](auto&& elt){ return (std::abs(elt - *it_) < FLOAT_TOLERANCE); })){
-                        break;
-                    }
-                }
-
-
-                if(it_ != et_){
-                    auto it_last = std::next(Am.lst_.end(), -1);
-
-                    Am.htable_.erase(*it_);
-                    Am.htable_.erase(curr_last);
-
-                    #ifdef DEBUG_
-                    std::cout << "Swapped " << *it_last << " and " << *it_ << std::endl;
-                    #endif
-
-                    std::iter_swap(it_last, it_);
-
-                    Am.htable_.insert({curr_last, it_});
-                    Am.htable_.insert({*it_last, it_last});
-                }
-            }
-        }
-
 
     public:
 
