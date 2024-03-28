@@ -17,7 +17,6 @@ int main(int argc, char **argv){
     if(IS_PERFECT_){
         std::vector<int> input;
         input.reserve(elems_count);
-        std::cout << "is perfect" << std::endl;
 
         for(int i = 0; i < elems_count; ++i){
             std::cin >> elem;
