@@ -14,15 +14,18 @@ int main(int argc, char **argv){
     caches::two_queues<int> two_q(cache_sz, cache_sz / 3);
 
     if(IS_PERFECT_){
-        int *input = new int[elems_count]{};
+        std::vector<int> input;
+        input.reserve(elems_count);
 
-        for(int i = 0; i < cache_sz; ++i){
+        for(int i = 0; i < elems_count; ++i){
             std::cin >> elem;
-            input[i] = elem;
-            hits += two_q.perfect_cache_update(input[i], input + i, i < cache_sz ? i : cache_sz);
+            input.push_back(elem);
         }
 
-        delete [] input;
+        for(int i = 0; i < elems_count; ++i){
+            hits += two_q.perfect_cache_update(std::next(input.begin(), i), input.end());
+        }
+
     }else{
         for(size_t i = 0; i < elems_count; ++i){
             std::cin >> elem;

@@ -30,15 +30,17 @@ int main(int argc, char **argv){
     int elem;
     size_t hits = 0;
 
-    caches::two_queues<int> two_q(cache_sz, cache_sz / 2);
+    caches::two_queues<int> two_q(cache_sz, 2);
 
     if(is_perfect){
-        int *input = new int[elems_count]{};
+        // int *input = new int[elems_count]{};
+        std::vector<int> input;
+        input.reserve(elems_count);
 
         for(int i = 0; i < elems_count; ++i){
             std::cin >> elem;
-            input[i] = elem;
-            hits += two_q.perfect_cache_update(input[i], input + i, i < cache_sz ? i : cache_sz);
+            input.push_back(elem);
+            hits += two_q.perfect_cache_update(std::next(input.begin(), i), input.end());
 
             std::cout << "Cache state: " << std::endl << "|";
             for(int j = 0; j < 2 * two_q.capacities().sz1; ++j){                    // Am
@@ -80,8 +82,6 @@ int main(int argc, char **argv){
             std::cout << std::endl;
 
         }
-
-        delete [] input;
     }else{
         while(1){
             std::cin >> elem;

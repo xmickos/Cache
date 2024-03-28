@@ -32,15 +32,19 @@ TEST(Two_queues, DISABLED_Main_test_ints){
     std::default_random_engine generator;
     std::binomial_distribution<int> distribution(1000,0.5);
 
-    int *bdistr_input = new int[TEST_SIZE];
+    // int *bdistr_input = new int[TEST_SIZE];
+    std::vector<int> bdistr_input;
+    bdistr_input.reserve(TEST_SIZE);
 
     for(int i = 0; i < TEST_SIZE; ++i){
-        bdistr_input[i] = distribution(generator);
+        bdistr_input.push_back(distribution(generator));
     }
 
     std::cout << "/////////////////// Input ///////////////////" << std::endl;
-    for(int i = 0; i < TEST_SIZE; ++i){
-        std::cout << bdistr_input[i] << " ";
+    auto it = bdistr_input.begin();
+    for(int i = 0; i < TEST_SIZE && it != bdistr_input.end(); ++i, ++it){
+        // std::cout << bdistr_input[i] << " ";
+        std::cout << *it << " ";
         if(i % 25 == 0) { std::cout << std::endl; }
     }
     std::cout << std::endl;
@@ -49,10 +53,13 @@ TEST(Two_queues, DISABLED_Main_test_ints){
 
     int input1[13] = {1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5};
 
-    for(int i = 0; i < TEST_SIZE; ++i){
-        b_hits += test_qs.cache_update(bdistr_input[i]);
+    it = bdistr_input.begin();
+    for(int i = 0; i < TEST_SIZE && it != bdistr_input.end(); ++i, ++it){
+        b_hits += test_qs.cache_update(*it);
+        // b_hits += test_qs.cache_update(bdistr_input[i]);
 #if 0
-        std::cout << "\nAfter updating with " << bdistr_input[i] << " we have: " << std::endl <<
+        // std::cout << "\nAfter updating with " << bdistr_input[i] << " we have: " << std::endl <<
+        std::cout << "\nAfter updating with " << *it << " we have: " << std::endl <<
         "Lru:" << std::endl;
         for(auto it = test_qs.Am.lst_.begin(); it != test_qs.Am.lst_.end(); ++it){
             std::cout << *it << " ";
@@ -77,17 +84,16 @@ TEST(Two_queues, DISABLED_Main_test_ints){
 
     b_hits = 0;
     caches::cache_szs_ caps = test_qs.capacities();
-    for(int i = 0; i < caps.sz1; ++i){
-        b_hits += test_qs.cache_update(bdistr_input[i]);
+    it = bdistr_input.begin();
+    for(int i = 0; i < caps.sz1 && it != bdistr_input.end(); ++i, ++it){
+        // b_hits += test_qs.cache_update(bdistr_input[i]);
+        b_hits += test_qs.cache_update(*it);
     }
-
-    for(size_t i = caps.sz1; i < TEST_SIZE; ++i){
-        b_hits += test_qs.perfect_cache_update(bdistr_input[i], bdistr_input + i, i < TEST_SIZE - caps.sz1 ? caps.sz1 : TEST_SIZE - i);
+    it = bdistr_input.begin();
+    for(size_t i = caps.sz1; i < TEST_SIZE && it != bdistr_input.end(); ++i, ++it){
+        // b_hits += test_qs.perfect_cache_update(bdistr_input[i], bdistr_input + i, i < TEST_SIZE - caps.sz1 ? caps.sz1 : TEST_SIZE - i);
+        b_hits += test_qs.perfect_cache_update(std::next(it, i - caps.sz1), bdistr_input.end());
     }
-
-
-    delete [] bdistr_input;
-
 }
 
 TEST(Two_queues, DISABLED_Main_test_doubles){
@@ -221,7 +227,7 @@ TEST(Two_queues, DISABLED_Fifo_isolated){
 
     for(int i = 0; i < test_size; i++){
         std::cout << "Erasing elem " << inputs[i] << ", before we had: " << test_fifo.find_elem(inputs[i]) << " ";
-        test_fifo.erase_elem(inputs[i]);
+        test_fifo.erase_last(inputs[i]);
         std::cout << ", now he got: " << test_fifo.find_elem(inputs[i]) << std::endl;
     }
 
@@ -326,14 +332,15 @@ TEST(Two_queues, DISABLED_LRU_isolated){
 }
 
 
-TEST(Two_queues, Perfect_caching){
+TEST(Two_queues, DISABLED_Perfect_caching){
 
     size_t cache_sz = 40, elems_count = 2*1e5;
-    int *input = new int[elems_count]{};
+    std::vector<int> input;
+    input.reserve(elems_count);
     clock_t start, end;
 
     for(int i = 0; i < elems_count; ++i){
-        input[i] = rand() % 1000;
+        input.push_back(rand() % 1000);
     }
 
     caches::two_queues<int> two_q(cache_sz, cache_sz / 3);
@@ -349,9 +356,11 @@ TEST(Two_queues, Perfect_caching){
 
     start = clock();
 
-    for(size_t i = 0; i < elems_count; ++i){
-        elem = input[i];
-        hits += two_q.perfect_cache_update(elem, input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
+    auto it = input.begin();
+    for(size_t i = 0; i < elems_count && it != input.end(); ++i, ++it){
+        elem = *it;
+        std::cout << "i = " << i << " vs " << elems_count << " elems_count " << *it << " " << (it != input.end()) << std::endl;
+        hits += two_q.perfect_cache_update(it, input.end());
 
         if(elems_count * (percentage + 1) > i * 100 && elems_count * percentage <= i * 100){
             std::cout << "Done: " << percentage << "%" << std::endl;
@@ -371,7 +380,7 @@ TEST(Two_queues, Perfect_caching){
 
     std::cout << "Perfect caching:" << std::endl;
     hits = 0;
-#if 0
+#if 0 //not updated yet
     for(int i = 0; i < elems_count; ++i){
         two_q.Am.perfect_caching(input + i, i < elems_count - two_q.Am.lst_.size() ? two_q.Am.lst_.size() : elems_count - i);
         hits += two_q.cache_update(input[i]);
@@ -406,7 +415,7 @@ TEST(Two_queues, Perfect_caching){
 
 }
 
-TEST(Two_queues, DISABLED_e2e){
+TEST(Two_queues, e2e){
     std::string str, str_ = "./test_inputs/", str__ = ".txt";
 
     std::cin >> str;
@@ -433,13 +442,14 @@ TEST(Two_queues, DISABLED_e2e){
 
     int elem = 0;
     size_t hits = 0;
-    bool is_perfect = false;
+    bool is_perfect = true;
     int hit_ = 0;
 
-    caches::two_queues<int> two_q(cache_sz, cache_sz / 3);
+    caches::two_queues<int> two_q(cache_sz, 3);
 
     if(is_perfect){
-        int *input = new int[elems_count]{};
+        std::vector<int> input;
+        input.reserve(elems_count);
 
         #ifdef DEBUG_
         std::cout << "Perfect caching:" << std::endl;
@@ -447,32 +457,32 @@ TEST(Two_queues, DISABLED_e2e){
 
         hits = 0;
 
-        for(size_t i = 0; i < cache_sz; ++i){
+        for(size_t i = 0; i < elems_count; ++i){
             std::cin >> elem;
-            input[i] = elem;
-            if(elems_count <= cache_sz) { hits += two_q.cache_update(input[i]); }
+            input.push_back(elem);
         }
 
         for(size_t i = 0; i < elems_count; ++i){
-            std::cin >> elem;
-            input[i < elems_count - cache_sz ? i + cache_sz : elems_count - i] = elem;
-            elem = input[i];
 
             #ifdef DEBUG_
             std::cout << std::endl << "Lru before perfect cache:" << std::endl;
-            for(auto it =  two_q.Am.lst_.begin(); it != two_q.Am.lst_.end(); ++it){
+            for(auto it_ =  two_q.Am.lst_.begin(); it_ != two_q.Am.lst_.end(); ++it_){
+                std::cout << *it_ << " ";
+            }
+            std::cout << std::endl << "input: " << std::endl;
+
+            for(auto it = std::next(input.begin(), i); it < std::next(input.begin(), i + cache_sz) && it != input.end(); ++it){
                 std::cout << *it << " ";
             }
-            std::cout << std::endl << "input: ";
-            for(size_t j = i; j < (j <= elems_count - cache_sz ? cache_sz + i : elems_count - i); ++j) std::cout << input[j] << " ";
+
             std::cout << std::endl;
             #endif
 
-            hit_ += two_q.perfect_cache_update(elem, input + i, i < elems_count - cache_sz ? cache_sz : elems_count - i);
+            hit_ += two_q.perfect_cache_update(std::next(input.begin(), i), input.end());
             hits += hit_;
 
             #ifdef DEBUG_
-            std::cout << "\nAfter updating with " << elem << " we have: ";
+            std::cout << "\nAfter updating with " << *std::next(input.begin(), i) << " we have: ";
             hit_ > 0 ? std::cout << "hit" : std::cout << "miss";
 
             std::cout << std::endl << "Lru:" << std::endl;
@@ -492,14 +502,14 @@ TEST(Two_queues, DISABLED_e2e){
 
             hit_ = 0;
         }
-
-        delete [] input;
     }else{
         for(size_t i = 0; i < elems_count; ++i){
             std::cin >> elem;
+
             #ifdef DEBUG_
             std::cout << "readed " << elem << std::endl;
             #endif
+
             hit_ += two_q.cache_update(elem);
             hits += hit_;
 
